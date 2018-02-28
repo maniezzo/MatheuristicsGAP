@@ -1,0 +1,51 @@
+{
+   "SA" : { "maxT" : 200, 
+            "k" : 0.5,
+            "alpha" : 0.99,
+            "iterAnneal" : 500,
+            "maxiter" : 10000
+          },
+   "TS" : { "Ttenure" : 2,
+            "maxiter" : 10000
+          },
+   "GA" : { "pc" : 1.0,
+            "numpop"  : 20,
+            "maxiter" : 50
+          },
+   "EC" : { "maxiter" : 50
+          },
+   "ILS": { "maxiter" : 10000,
+            "alpha"   : 0.2
+          },
+   "lagrAss" : { "alpha"     : 2.5,
+                 "alphastep" : 0.97,
+                 "minalpha"  : 0.001,
+                 "innerIter" : 40,
+                 "maxiter"   : 1000000
+               },
+   "lagrCap" : { "alpha"     : 2.5,
+                 "alphastep" : 0.9,
+                 "minalpha"  : 0.001,
+                 "innerIter" : 40,
+                 "maxiter"   : 1000000
+               },
+   "RINS"     :{ "maxnodes"  : 5000
+               },
+   "beam"     :{ "delta"     : 5,
+                 "maxnodes"  : 200000
+               },
+   "FandB"    :{ "delta"     : 5,
+                 "maxnodes"  : 200000
+               },
+   "corridor" :{ "delta"     : 8,
+                 "maxiter"   : 50
+               },
+   "locBranching" : { "k"    : 4,
+                      "maxiter"   : 5
+                    },
+   "benders" : { "maxiter"   : 5
+               },
+   "datafile"  : "..\\..\\istanze\\instances\\fileList.txt",
+   "outdir"    : "outdir",
+   "isverbose" : 1
+}
