@@ -45,7 +45,7 @@
                     },
    "benders" : { "maxiter"   : 5
                },
-   "datafile"  : "..\\..\\istanze\\instances\\fileList.txt",
+   "datafile"  : "c:\\AAAToBackup\\ricerche\\GAP\\istanze\\instances\\fileList.txt",
    "outdir"    : "outdir",
    "isverbose" : 1
 }
