@@ -24,6 +24,9 @@ GAPVS/[Bb]in/
 GAPVS/[Oo]bj/
 GAPVS/[Ll]og/
 .vscode/
+x64/
+[Dd]ebug/
+[Rr]elease/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/

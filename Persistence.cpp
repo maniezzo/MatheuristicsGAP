@@ -95,11 +95,14 @@ Config* Persistence::loadConfig()
 // reads instance data from json formatted files
 void Persistence::readJSONdata(string fileList)
 {
-   string infile,line;
+   string infile,line,path;
    size_t i,j,cont;
 
    infile = fileList;
    cout << "Opening " << infile << endl;
+   size_t found = fileList.find_last_of("/\\");
+   path = fileList.substr(0, found);
+   cout << "Data path: " << path << '\n';
 
    ifstream fList (infile.c_str());
    string str;
@@ -107,7 +110,7 @@ void Persistence::readJSONdata(string fileList)
    cont=0;
    while ( std::getline(fList,str) )
    {
-      arrFiles.push_back("..\\..\\istanze\\instances\\"+str) ;
+      arrFiles.push_back(path+"\\"+str) ;
       //cout << cont <<") " << arrFiles[cont] << endl;
       cont++;
    }
