@@ -238,30 +238,30 @@ int MIPCplex::populateDual(CPXENVptr env, CPXLPptr lp, vector<int> xbar, int nRo
    idRow = ij = 0;
    for (i = istart; i<GAP->m; i++)
    {  
-         for (j = 0; j<GAP->n; j++)
-         {
-            numNZrow = 0;  // number of nonzero element in the row to add
-            rmatbeg[0] = 0;
-            sense[0] = 'L';
-            rhs[0] = GAP->c[i][j];
-            rowname[idRow] = (char *)malloc(sizeof(char) * (7));   // why not?
-            sprintf(rowname[0], "%s%d", "c", idRow);
+      for (j = 0; j<GAP->n; j++)
+      {
+         numNZrow = 0;  // number of nonzero element in the row to add
+         rmatbeg[0] = 0;
+         sense[0] = 'L';
+         rhs[0] = GAP->c[i][j];
+         rowname[idRow] = (char *)malloc(sizeof(char) * (7));   // why not?
+         sprintf(rowname[0], "%s%d", "c", idRow);
 
-            // var w'
-            rmatind[numNZrow] = j;
-            rmatval[numNZrow] = 1.0;
-            numNZrow++;
+         // var w'
+         rmatind[numNZrow] = j;
+         rmatval[numNZrow] = 1.0;
+         numNZrow++;
 
-            // var w''
-            rmatind[numNZrow] = (i-istart) + GAP->n;
-            rmatval[numNZrow] = GAP->req[i][j];
-            numNZrow++;
+         // var w''
+         rmatind[numNZrow] = (i-istart) + GAP->n;
+         rmatval[numNZrow] = GAP->req[i][j];
+         numNZrow++;
 
-            rmatbeg[1] = numNZrow;
-            status = CPXaddrows(env, lp, 0, 1, numNZrow, rhs, sense, rmatbeg, rmatind, rmatval, NULL, rowname);
-            if (status)  goto TERMINATE;
-            idRow++;
-         }
+         rmatbeg[1] = numNZrow;
+         status = CPXaddrows(env, lp, 0, 1, numNZrow, rhs, sense, rmatbeg, rmatind, rmatval, NULL, rowname);
+         if (status)  goto TERMINATE;
+         idRow++;
+      }
    }
 
 TERMINATE:
@@ -275,13 +275,13 @@ TERMINATE:
 int MIPCplex::allocateDual(int numRows, int numCols, vector<int> xbar, bool isVerbose)
 {
    env = NULL;
-   lp = NULL;
+   lp  = NULL;
    status = 0;
 
-   pi = NULL;
+   pi    = NULL;
    slack = NULL;
    dj = NULL;
-   x = NULL;
+   x  = NULL;
 
    cout << "Allocating CPLEX" << endl;
 
@@ -530,7 +530,7 @@ int MIPCplex::freeMIP()
 {  
    // Free up the solution 
    // free_and_null ((char **) &x);    // in the destructor
-   free_and_null ((char **) &slack);
+   if(slack != NULL) free_and_null ((char **) &slack);
    if(dj != NULL) free_and_null ((char **) &dj);
    if(pi != NULL) free_and_null ((char **) &pi);
 

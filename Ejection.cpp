@@ -64,15 +64,16 @@ l0:for(k=0;k<5*n;k++)
       z += GAP->c[newsol[j]][j];
    }
 
-   if(abs(GAP->checkSol(newsol)-z) > GAP->EPS)
-   {  GAP->fixSol(newsol,&z);
-      if(abs(GAP->checkSol(newsol)-z) > GAP->EPS)
+   if(z >= INT_MAX || abs(GAP->checkSol(newsol)-z) > GAP->EPS)
+   {  //GAP->fixSol(newsol,&z);
+      GAP->fixSolViaKnap(newsol, &z);
+      if(z >= INT_MAX || abs(GAP->checkSol(newsol)-z) > GAP->EPS)
       {  numRetry++;
          if(numRetry < 5)
             goto l0;
          else if (numRetry < 10)
          {  GAP->fixSolViaKnap(newsol,&z);
-            if(abs(GAP->checkSol(newsol)-z) > GAP->EPS)
+            if(z >= INT_MAX || abs(GAP->checkSol(newsol)-z) > GAP->EPS)
                goto l0;
          }
          else
@@ -105,6 +106,7 @@ int* Ejection::feasibilityPump(int maxIter, double* x, double zlp)
    numNZrow = n*m;   // max num of nonzero values in a row
    try
    {
+      cout << "Entering feasibility pump" << endl;
       CPX = new MIPCplex(numRows, numCols, numNZrow);
       CPX->GAP = GAP;
       CPX->allocateMIP(false);
