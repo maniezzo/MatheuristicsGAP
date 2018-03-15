@@ -135,7 +135,7 @@ int GeneralizedAssignemnt::fixSolViaKnap(int* infeasSol, int* zsol)
    sol = (int*) malloc(n * sizeof(int));
    for(j=0;j<n;j++)     // randomly fill unassigned clients
    {  sol[j]=infeasSol[j];
-      if(sol[j] == NULL || sol[j]<0 || sol[j] >= m)
+      if(sol[j]<0 || sol[j] >= m)
          sol[j] = rand()%m;
       // residual capacities
       capres[sol[j]] -= req[sol[j]][j];
