@@ -24,8 +24,13 @@ int Ejection::ejectionChain(int** c, int maxiter)
 
    sol = generateOneSol(&z);
 
-   double zlp = DBL_MAX;
-   sol = feasibilityPump(1000,x,zlp);
+   cout << "Here would be feasibility pump. Commented out" << endl;
+   if(z<0)
+   {
+      double zlp = DBL_MAX;
+      sol = feasibilityPump(1000,x,zlp);
+   }
+
    cout << "[EC] z = " << z << endl;
 
    delete x;
@@ -68,8 +73,8 @@ l0:for(k=0;k<5*n;k++)
    }
 
    if(z >= INT_MAX || abs(GAP->checkSol(newsol)-z) > GAP->EPS)
-   {  //GAP->fixSol(newsol,&z);
-      GAP->fixSolViaKnap(newsol, &z);
+   {  GAP->fixSol(newsol,&z);
+      //GAP->fixSolViaKnap(newsol, &z);
       if(z >= INT_MAX || abs(GAP->checkSol(newsol)-z) > GAP->EPS)
       {  numRetry++;
          if(numRetry < 5)
