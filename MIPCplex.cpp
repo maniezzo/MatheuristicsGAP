@@ -8,7 +8,10 @@
 // This simple routine frees up the pointer *ptr, and sets *ptr to NULL 
 static void free_and_null (char **ptr)
 {  if ( *ptr != NULL ) 
-   {  free (*ptr);
+   {  try
+      { free (*ptr); }
+      catch (const std::exception& e) 
+      {  cout << e.what(); }
       *ptr = NULL;
    }
 } // END free_and_null  
@@ -120,6 +123,7 @@ MIPCplex::~MIPCplex()
    if(colname != NULL) free(colname);
    if(rowname != NULL) free(rowname);
    if(x != NULL)       free(x);
+   //if(slack != NULL)   free(slack);
 }
 
 // To populate by row, we first create the columns, and then add the rows.  
@@ -530,7 +534,7 @@ int MIPCplex::freeMIP()
 {  
    // Free up the solution 
    // free_and_null ((char **) &x);    // in the destructor
-   if(slack != NULL) free_and_null ((char **) &slack);
+   // if(slack != NULL) free_and_null ((char **) &slack);
    if(dj != NULL) free_and_null ((char **) &dj);
    if(pi != NULL) free_and_null ((char **) &pi);
 

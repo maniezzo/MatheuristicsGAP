@@ -40,7 +40,10 @@ int* Ejection::generateOneSol(int* zval)
    auto compCost = [&cost](int a, int b){ return cost[a] < cost[b]; };  // ASC order, predecate for sort
 
    for(i=0;i<m;i++) capleft[i] = GAP->cap[i];   // residual capacities
-   for(j=0;j<n;j++) ind[j] = j;
+   for(j=0;j<n;j++)
+   {  ind[j] = j;
+      newsol[j] = -1;      // default initialization
+   }
 
 l0:for(k=0;k<5*n;k++)
    {  c1 = std::rand() % n;
