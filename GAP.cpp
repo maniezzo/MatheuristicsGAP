@@ -216,8 +216,33 @@ lend:
    return *zsol;
 }
 
+// computes the aversion (opposite preference) of assigning j to i
+int GeneralizedAssignemnt::aversion(int i, int j)
+{  int res = -1,whichFunc;
+
+   whichFunc = conf->aversionf;
+   switch (whichFunc)
+   {
+   case 1:     // assignment cost
+      res = c[i][j];
+      break;
+   case 2:     // required resource amount
+      res = req[i][j];
+      break;
+   case 3:     // regret
+      
+      res = req[i][j];
+      break;
+   default:
+         cout << "Aversion fnction badly specified" << endl;
+         break;
+   }
+
+   return res;
+}
 // **************************************************************************** //
 // *************************** Free functions ********************************* //
+
 
 // computes assignment regrets for each client
 void computeRegrets(int** c, int n, int m, vector<int> & regrets)
