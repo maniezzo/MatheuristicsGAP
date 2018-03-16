@@ -149,13 +149,14 @@ class GeneralizedAssignemnt
       int checkSol(int* sol);                       // feasibility check
       int fixSol(int* infeasSol, int* zsol);        // recovers feasibility in case of partial or overassigned solution
       int fixSolViaKnap(int* infeasSol, int* zsol); // recovers feasibility via knapsacks on residual capacities
-      int aversion(int,int);
+      int aversion(int i,int j);
 };
 
 // free
 void computeRegrets(int**, int, int, vector<int> & );
 double KDynRecur(int n, int Kcap, int* Q, double* val, int* Ksol);
 void KdecodeSol(int i, int Kcap, int* Q, double* val, int n, double** f, int* sol);
+void printIntArray(int* a, int n);
 void printDblArray(double* a, int n);
 
 #endif // GAP_H
