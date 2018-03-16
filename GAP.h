@@ -121,6 +121,7 @@ class Config
       BendersConf*  bendersConf;
       string  datafile;
       int     isVerbose;
+      int     aversionf;
 
       Config();
 };
@@ -148,6 +149,7 @@ class GeneralizedAssignemnt
       int checkSol(int* sol);                       // feasibility check
       int fixSol(int* infeasSol, int* zsol);        // recovers feasibility in case of partial or overassigned solution
       int fixSolViaKnap(int* infeasSol, int* zsol); // recovers feasibility via knapsacks on residual capacities
+      int aversion(int,int);
 };
 
 // free

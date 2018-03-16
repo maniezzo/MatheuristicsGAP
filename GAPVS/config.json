@@ -47,5 +47,6 @@
                },
    "datafile"  : "c:\\AAAToBackup\\ricerche\\GAP\\istanze\\instances\\fileList.txt",
    "outdir"    : "outdir",
-   "isverbose" : 1
+   "isverbose" : 1,
+   "aversionf" : 2
 }
