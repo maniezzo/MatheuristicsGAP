@@ -62,8 +62,8 @@ l0:for(k=0;k<5*n;k++)
    {
       j = ind[jj];
       for(i=0;i<m;i++)
-      {  cost[i]= GAP->req[i][j];   // generalized cost for ordering
-         indReq[i] = i;             // server index for requests ordering
+      {  cost[i]= GAP->aversion(i,j);  // generalized cost for ordering
+         indReq[i] = i;                // server index for requests ordering
       }
 
       std::sort(indReq.begin(), indReq.end(), compCost); // sort by increasing gen cost
@@ -73,8 +73,8 @@ l0:for(k=0;k<5*n;k++)
    }
 
    if(z >= INT_MAX || abs(GAP->checkSol(newsol)-z) > GAP->EPS)
-   {  GAP->fixSol(newsol,&z);
-      //GAP->fixSolViaKnap(newsol, &z);
+   {  //GAP->fixSol(newsol,&z);
+      GAP->fixSolViaKnap(newsol, &z);
       if(z >= INT_MAX || abs(GAP->checkSol(newsol)-z) > GAP->EPS)
       {  numRetry++;
          if(numRetry < 5)

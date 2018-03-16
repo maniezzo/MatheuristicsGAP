@@ -218,7 +218,7 @@ lend:
 
 // computes the aversion (opposite preference) of assigning j to i
 int GeneralizedAssignemnt::aversion(int i, int j)
-{  int res = -1,whichFunc;
+{  int res = -1,whichFunc,first;
 
    whichFunc = conf->aversionf;
    switch (whichFunc)
@@ -230,11 +230,20 @@ int GeneralizedAssignemnt::aversion(int i, int j)
       res = req[i][j];
       break;
    case 3:     // regret
-      
-      res = req[i][j];
+         first = INT_MAX;
+         for (int ii = 0; ii<m; ii++)
+            if (c[ii][j] < first)
+               first = c[ii][j];
+         res = c[i][j] - first;
+      break;
+   case 4:     // resource unit cost
+      res = (100.0 * c[i][j]) / req[i][j];
+      break;
+   case 5:     // percentage server occupation
+      res = (100.0 * req[i][j])/cap[i];
       break;
    default:
-         cout << "Aversion fnction badly specified" << endl;
+         cout << "Aversion function badly specified" << endl;
          break;
    }
 
@@ -344,11 +353,21 @@ lend:
    return;
 }
 
-// print a 1D array of doubles contents
+// print a 1D array of ints
+void printIntArray(int* a, int n)
+{
+   int i;
+   for (i = 0; i<n; i++)
+      cout << a[i] << " ";
+   cout << endl;
+}
+
+// print a 1D array of doubles
 void printDblArray(double* a, int n)
-{  int i;
+{
+   int i;
    cout.precision(3);
-   for(i=0;i<n;i++)
+   for (i = 0; i<n; i++)
       cout << a[i] << " ";
    cout << endl;
 }

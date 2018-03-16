@@ -16,7 +16,7 @@ ConstructHeu::~ConstructHeu()
    //dtor
 }
 
-// constructive: each at its emptiest facility
+// constructive: each at its least disliked facility
 int ConstructHeu::simpleContruct()
 {  int i,ii,j,jj,m,n;
 
@@ -44,7 +44,7 @@ int ConstructHeu::simpleContruct()
    for(jj=0;jj<n;jj++)
    {  j = indCost[jj];  // client order by regrets
       for(i=0;i<m;i++)
-      {  cost[i]= GAP->req[i][j];
+      {  cost[i]= GAP->aversion(i,j);
          indReq[i] = i;
       }
 
@@ -73,7 +73,9 @@ int ConstructHeu::simpleContruct()
       zub = INT_MAX;
    }
    else
-      cout << "Construction terminated. Zub = " << zub << endl;
+   {  cout << "Construction terminated. Zub = " << zub << endl;
+      printIntArray(sol,n);
+   }
    for(int k=0;k<n;k++) solbest[k] = sol[k];
    return zub;
 }
