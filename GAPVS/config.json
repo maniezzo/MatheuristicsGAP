@@ -1,9 +1,11 @@
 {
-   "SA" : { "maxT" : 200, 
-            "k" : 0.5,
+   "SA" : { "maxT"  : 200, 
+            "k"     : 0.5,
             "alpha" : 0.99,
             "iterAnneal" : 500,
-            "maxiter" : 10000
+            "coefAnneal" : 0.9,
+            "maxiter" : 10000,
+            "fGoMath" : 1
           },
    "TS" : { "Ttenure" : 2,
             "maxiter" : 10000

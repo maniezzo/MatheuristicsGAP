@@ -33,7 +33,9 @@ Config* Persistence::loadConfig()
    GAP->conf->SA->k           = jSA["k"];
    GAP->conf->SA->alpha       = jSA["alpha"];
    GAP->conf->SA->iterAnneal  = jSA["iterAnneal"];
-   GAP->conf->SA->maxiter     = jSA["maxiter"];
+   GAP->conf->SA->coefAnneal  = jSA["coefAnneal"];
+   GAP->conf->SA->maxiter = jSA["maxiter"];
+   GAP->conf->SA->fGoMath = jSA["fGoMath"];
 
    json::Object jTS = JSV["TS"];
    GAP->conf->TS->Ttenure = jTS["Ttenure"];
