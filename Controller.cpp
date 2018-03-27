@@ -13,7 +13,6 @@ Controller::Controller()
 
    CH   = new ConstructHeu(GAP,GAP->zub); 
    MT   = new MTHG(GAP,GAP->zub);
-   SA   = new SimAnnealing(GAP, GAP->zub);
    TS   = new TabuSearch(GAP,GAP->zub);
    MLS  = new MetaLocalSearch(GAP,LS,GAP->zub); 
    RINS = new Rins(GAP,GAP->zub); 
@@ -27,7 +26,6 @@ Controller::~Controller()
    delete GAP;
    delete P;
    if(CH != NULL) delete CH;
-   if(SA != NULL) delete SA;
    if(TS != NULL) delete TS;
    if(MLS != NULL) delete MLS;
    if(RINS != NULL) delete RINS;
@@ -131,6 +129,7 @@ int Controller::opt10()
    }
 
    if (LS != NULL) delete LS;
+   LS = NULL;
 
    cout << "Opt01 zub= " << z << endl;
    return GAP->zub;
@@ -138,13 +137,22 @@ int Controller::opt10()
 
 int Controller::simAnn()
 {
-   return SA->simAnneling( GAP->c, 
+   SA = new SimAnnealing(GAP, GAP->zub);
+
+   SA->simAnnealing( GAP->c,
       GAP->conf->SA->maxT,
       GAP->conf->SA->k,
       GAP->conf->SA->alpha,
       GAP->conf->SA->maxiter,
-      GAP->conf->SA->iterAnneal
+      GAP->conf->SA->iterAnneal,
+      GAP->conf->SA->coefAnneal,
+      GAP->conf->SA->fGoMath
    );
+
+   if (SA != NULL) delete SA;
+   SA = NULL;
+
+   return GAP->zub;
 }
 
 int Controller::tabuSearch()

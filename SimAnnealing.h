@@ -9,7 +9,8 @@ class SimAnnealing
 
       SimAnnealing(GeneralizedAssignemnt*, int&);
       ~SimAnnealing();
-      int simAnneling(int**, double, double, double, int, int);
+      int simAnnealing(int**, double, double, double, int, int, double, int);
+      int mathSimAnnealing(int**, double, double, double, int, int, double);
 
    private:
       // local mirrors

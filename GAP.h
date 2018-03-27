@@ -23,7 +23,9 @@ class Config
             double k;
             double alpha;
             int iterAnneal;
+            double coefAnneal;
             int maxiter;
+            int fGoMath;          // flag: use matheuristics
             friend class Config;
       };
 
