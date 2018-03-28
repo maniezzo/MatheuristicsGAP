@@ -33,6 +33,7 @@ class Config
       {  public:
          int Ttenure;
          int maxiter;
+         int fGoMath;          // flag: use matheuristics
       };
 
       class IteratedLS
