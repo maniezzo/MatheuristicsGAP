@@ -40,6 +40,7 @@ Config* Persistence::loadConfig()
    json::Object jTS = JSV["TS"];
    GAP->conf->TS->Ttenure = jTS["Ttenure"];
    GAP->conf->TS->maxiter = jTS["maxiter"];
+   GAP->conf->TS->fGoMath = jTS["fGoMath"];
 
    json::Object jILS = JSV["ILS"];
    GAP->conf->IterLS->maxiter = jILS["maxiter"];

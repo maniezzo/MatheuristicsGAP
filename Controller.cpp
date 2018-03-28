@@ -13,7 +13,6 @@ Controller::Controller()
 
    CH   = new ConstructHeu(GAP,GAP->zub); 
    MT   = new MTHG(GAP,GAP->zub);
-   TS   = new TabuSearch(GAP,GAP->zub);
    MLS  = new MetaLocalSearch(GAP,LS,GAP->zub); 
    RINS = new Rins(GAP,GAP->zub); 
 }
@@ -26,7 +25,6 @@ Controller::~Controller()
    delete GAP;
    delete P;
    if(CH != NULL) delete CH;
-   if(TS != NULL) delete TS;
    if(MLS != NULL) delete MLS;
    if(RINS != NULL) delete RINS;
    cout << "GAP deleted";
@@ -157,10 +155,17 @@ int Controller::simAnn()
 
 int Controller::tabuSearch()
 {
-   return TS->tabuSearch(GAP->c,
+   TS = new TabuSearch(GAP, GAP->zub);
+
+   TS->tabuSearch(GAP->c,
       GAP->conf->TS->Ttenure,
-      GAP->conf->TS->maxiter
+      GAP->conf->TS->maxiter,
+      GAP->conf->TS->fGoMath
    );
+   if (TS != NULL) delete TS;
+   TS = NULL;
+
+   return GAP->zub;
 }
 
 int Controller::run_genAlgo()

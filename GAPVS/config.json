@@ -8,7 +8,8 @@
             "fGoMath" : 1
           },
    "TS" : { "Ttenure" : 2,
-            "maxiter" : 10000
+            "maxiter" : 10000,
+            "fGoMath" : 1
           },
    "GA" : { "pc" : 1.0,
             "numpop"  : 20,

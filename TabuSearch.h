@@ -1,6 +1,7 @@
 ﻿#ifndef TABUSEARCH_H
 #define TABUSEARCH_H
 #include "GAP.h"
+#include "Rins.h"
 
 class TabuSearch
 {
@@ -9,7 +10,7 @@ class TabuSearch
 
       TabuSearch(GeneralizedAssignemnt*, int&);
       ~TabuSearch();
-      int tabuSearch(int**,int,int);
+      int tabuSearch(int**,int,int,int);
 
    private:
       // local mirrors
@@ -17,6 +18,8 @@ class TabuSearch
       int   *sol,*solbest;
       int** req;
       int & zub,zlb;
+
+      int dive(Rins* RINS, int* newsol);
 };
 
 #endif // TABUSEARCH_H
