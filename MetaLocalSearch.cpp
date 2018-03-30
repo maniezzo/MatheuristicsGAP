@@ -19,7 +19,6 @@ MetaLocalSearch::~MetaLocalSearch()
 }
 
 int MetaLocalSearch::iteratedLocSearch(int** c, int maxIter, double alpha)
-
 {  int i,iter;
    int z;
 

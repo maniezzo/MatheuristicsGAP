@@ -13,7 +13,6 @@ Controller::Controller()
 
    CH   = new ConstructHeu(GAP,GAP->zub); 
    MT   = new MTHG(GAP,GAP->zub);
-   MLS  = new MetaLocalSearch(GAP,LS,GAP->zub); 
    RINS = new Rins(GAP,GAP->zub); 
 }
 
@@ -199,9 +198,19 @@ int Controller::iteratedLS()
       return INT_MAX;
    }
    else
-      return MLS->iteratedLocSearch(GAP->c,
-                                    GAP->conf->IterLS->maxiter,
-                                    GAP->conf->IterLS->alpha);
+   {
+      LS = new LocalSearch(GAP, GAP->zub);
+      MLS = new MetaLocalSearch(GAP, LS, GAP->zub);
+      MLS->iteratedLocSearch(GAP->c,
+                                  GAP->conf->IterLS->maxiter,
+                                  GAP->conf->IterLS->alpha);
+      if (LS != NULL) delete LS;
+      LS = NULL;
+      if (MLS != NULL) delete MLS;
+      MLS = NULL;
+
+      return GAP->zub;
+   }
 }
 
 int Controller::run_lagrAss()
