@@ -10,10 +10,6 @@ Controller::Controller()
 
    P->loadConfig();
    readJSONdata(GAP->conf->datafile);
-
-   CH   = new ConstructHeu(GAP,GAP->zub); 
-   MT   = new MTHG(GAP,GAP->zub);
-   RINS = new Rins(GAP,GAP->zub); 
 }
 
 Controller::~Controller()
@@ -23,9 +19,6 @@ Controller::~Controller()
    delete GAP->solbest;
    delete GAP;
    delete P;
-   if(CH != NULL) delete CH;
-   if(MLS != NULL) delete MLS;
-   if(RINS != NULL) delete RINS;
    cout << "GAP deleted";
 }
 
@@ -33,26 +26,30 @@ Controller::~Controller()
 void Controller::readJSONdata(string filename)
 {
    P->readJSONdata(filename);
-   setGAPdata();
+   GAP->sol     = new int[GAP->n];
+   GAP->solbest = new int[GAP->n];
+   GAP->zub     = INT_MAX;
    //srand (time(NULL));
    srand (550);
 }
 
-// dunno, could do without this one, isn't it?
-void Controller::setGAPdata()
-{
-   GAP->sol     = new int[GAP->n];
-   GAP->solbest = new int[GAP->n];
-   GAP->zub     = INT_MAX;
-}
-
 double Controller::simpleContruct()
-{  return CH->simpleContruct();
+{  int res;
+
+   CH   = new ConstructHeu(GAP,GAP->zub); 
+   res = CH->simpleContruct();
+   if(CH != NULL) delete CH;
+   CH = NULL;
+   return res;
 }
 
 // Martello and Toth heuristic
 int Controller::run_mthg()
-{  return MT->run_mthg();
+{  int res;
+   MT   = new MTHG(GAP,GAP->zub);
+   res = MT->run_mthg();
+   if(MT != NULL) delete MT;
+   return res;
 }
 
 void Controller::computeBounds()
@@ -243,6 +240,7 @@ int Controller::run_lagrCap()
 
 int Controller::run_rins()
 {  int res; 
+   RINS = new Rins(GAP,GAP->zub); 
    if(GAP->zub==INT_MAX) 
    {  cout << "Uninitialized solution" << endl;
       return INT_MAX;
@@ -326,3 +324,15 @@ int Controller::run_kernel()
    KER = NULL;
    return res;
 }
+
+int Controller::run_VLSN()
+{
+   VLSN = new VeryLarge(GAP, GAP->zub);
+   int res = VLSN->verylarge(GAP->c,
+      GAP->conf->verylargeConf->maxiter
+   );
+   if (VLSN != NULL) delete VLSN;
+   VLSN = NULL;
+   return res;
+}
+

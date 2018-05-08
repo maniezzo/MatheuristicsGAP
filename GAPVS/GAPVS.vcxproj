@@ -181,6 +181,7 @@
     <ClInclude Include="..\Rins.h" />
     <ClInclude Include="..\SimAnnealing.h" />
     <ClInclude Include="..\TabuSearch.h" />
+    <ClInclude Include="..\VLSN.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\BeamSearch.cpp" />
@@ -206,6 +207,7 @@
     <ClCompile Include="..\Rins.cpp" />
     <ClCompile Include="..\SimAnnealing.cpp" />
     <ClCompile Include="..\TabuSearch.cpp" />
+    <ClCompile Include="..\VLSN.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -30,6 +30,7 @@ int main()
       cout << (C->GAP->zub == INT_MAX ? "X" : "17") << ") Local Branching" << endl;
       cout << (C->GAP->zub == INT_MAX ? "X" : "18") << ") Benders" << endl;
       cout << (C->GAP->zub == INT_MAX ? "X" : "19") << ") Kernel search" << endl;
+      cout << (C->GAP->zub == INT_MAX ? "X" : "20") << ") Very large-scale neigh search" << endl;
       cout << endl;
       cout << "0) Exit" << endl;
       cout << "\n->";
@@ -113,6 +114,10 @@ int main()
       case (19):
          cout << "Kernel" << endl;
          C->run_kernel();
+         break;
+      case (20):
+         cout << "VLSN" << endl;
+         C->run_VLSN();
          break;
       case (0):
          goto lend;

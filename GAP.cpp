@@ -16,6 +16,7 @@ Config::Config()
    corridorConf = new CorridorConf();
    locBranching = new LocBranching();
    bendersConf  = new BendersConf();
+   verylargeConf= new VLSNConf();
 }
 
 GeneralizedAssignemnt::GeneralizedAssignemnt()
