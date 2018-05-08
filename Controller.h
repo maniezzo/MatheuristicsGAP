@@ -19,6 +19,7 @@
 #include "LocBranching.h"
 #include "Benders.h"
 #include "Kernel.h"
+#include "VLSN.h"
 
 class Controller
 {
@@ -42,6 +43,7 @@ class Controller
       LocBranching*     LBR;           // Local Branching
       Benders*          BEND;          // Benders
       Kernel*           KER;           // Kernel
+      VeryLarge*        VLSN;          // Very large-scale neighborhood search
 
       Controller();
       ~Controller();
@@ -65,9 +67,9 @@ class Controller
       int    run_localBranching();
       int    run_benders();
       int    run_kernel();
+      int    run_VLSN();
 
    private:
-      void setGAPdata();
 };
 
 #endif // CONTROLLER_H

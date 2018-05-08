@@ -84,6 +84,9 @@
     <ClInclude Include="..\Ejection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\VLSN.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Controller.cpp">
@@ -153,6 +156,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Ejection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\VLSN.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -105,7 +105,12 @@ class Config
 
       class BendersConf
       {  public:
-            int maxiter;
+         int maxiter;
+      };
+
+      class VLSNConf
+      {  public:
+         int maxiter;
       };
 
       // -------------------- reminder: initialize these in the Config constructor!
@@ -122,6 +127,7 @@ class Config
       FBconf*       fbConf;
       CorridorConf* corridorConf;
       BendersConf*  bendersConf;
+      VLSNConf*     verylargeConf;
       string  datafile;
       int     isVerbose;
       int     aversionf;

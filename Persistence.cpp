@@ -90,6 +90,9 @@ Config* Persistence::loadConfig()
    json::Object jBenders = JSV["benders"];
    GAP->conf->bendersConf->maxiter = jBenders["maxiter"];
 
+   json::Object jVLSN = JSV["VLSN"];
+   GAP->conf->verylargeConf->maxiter = jVLSN["maxiter"];
+
    GAP->conf->datafile  = JSV["datafile"];
    GAP->conf->isVerbose = JSV["isverbose"];
    GAP->conf->aversionf = JSV["aversionf"];
