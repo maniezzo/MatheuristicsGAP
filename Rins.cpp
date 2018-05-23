@@ -1,6 +1,6 @@
 ﻿#include "Rins.h"
 #include "MIPCplex.h"
-#include "cplex.h"
+#include <ilcplex/cplex.h>
 
 Rins::Rins(GeneralizedAssignemnt* GAPinstance, int & zz) : zub(zz)
 {

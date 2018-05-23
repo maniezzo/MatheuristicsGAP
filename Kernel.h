@@ -1,7 +1,7 @@
 ﻿#ifndef KERNEL_H
 #define KERNEL_H
 #include "GAP.h"
-#include "cplex.h"
+#include <ilcplex/cplex.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>

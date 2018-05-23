@@ -1,7 +1,7 @@
 ﻿#ifndef CPLEX_H
 #define CPLEX_H
 #include "GAP.h"
-#include "cplex.h"
+#include <ilcplex/cplex.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>

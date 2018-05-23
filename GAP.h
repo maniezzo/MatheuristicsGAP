@@ -111,6 +111,7 @@ class Config
       class VLSNConf
       {  public:
          int maxiter;
+         int k;
       };
 
       // -------------------- reminder: initialize these in the Config constructor!
