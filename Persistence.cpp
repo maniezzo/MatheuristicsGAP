@@ -92,6 +92,7 @@ Config* Persistence::loadConfig()
 
    json::Object jVLSN = JSV["VLSN"];
    GAP->conf->verylargeConf->maxiter = jVLSN["maxiter"];
+   GAP->conf->verylargeConf->k       = jVLSN["k"];
 
    GAP->conf->datafile  = JSV["datafile"];
    GAP->conf->isVerbose = JSV["isverbose"];

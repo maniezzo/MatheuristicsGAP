@@ -33,6 +33,7 @@ void Controller::readJSONdata(string filename)
    srand (550);
 }
 
+// simple constructive heuristic
 double Controller::simpleContruct()
 {  int res;
 
@@ -52,6 +53,7 @@ int Controller::run_mthg()
    return res;
 }
 
+// lower bounds
 void Controller::computeBounds()
 {  double bound;
    LB   = new LowerBound(GAP,GAP->zub);  
@@ -73,6 +75,7 @@ void Controller::computeBounds()
    LB = NULL;
 }
 
+// exact optimum, MIP
 double Controller::exactCplex()
 {
    double optMIP;
@@ -97,6 +100,7 @@ double Controller::exactCplex()
    return optMIP;
 }
 
+// simple local search
 int Controller::opt10()
 {  int z,zcheck;
    LS = new LocalSearch(GAP, GAP->zub);
@@ -129,6 +133,7 @@ int Controller::opt10()
    return GAP->zub;
 }
 
+// simulated annealing
 int Controller::simAnn()
 {
    SA = new SimAnnealing(GAP, GAP->zub);
@@ -149,6 +154,7 @@ int Controller::simAnn()
    return GAP->zub;
 }
 
+// tabu search
 int Controller::tabuSearch()
 {
    TS = new TabuSearch(GAP, GAP->zub);
@@ -164,6 +170,7 @@ int Controller::tabuSearch()
    return GAP->zub;
 }
 
+// genetic algorithm
 int Controller::run_genAlgo()
 {
    GA = new GenAlgo(GAP, GAP->zub);
@@ -177,6 +184,7 @@ int Controller::run_genAlgo()
    return res;
 }
 
+// ejection chain
 int Controller::run_ejection()
 {
    EC = new Ejection(GAP, GAP->zub);
@@ -188,6 +196,7 @@ int Controller::run_ejection()
    return res;
 }
 
+// iterated local search
 int Controller::iteratedLS()
 {  
    if(GAP->zub==INT_MAX) 
@@ -210,6 +219,7 @@ int Controller::iteratedLS()
    }
 }
 
+// lagrangean heuristic, feasible assignments, relax capacities
 int Controller::run_lagrAss()
 {  
    LAGR = new Lagrangian(GAP,GAP->zub); 
@@ -224,6 +234,7 @@ int Controller::run_lagrAss()
    return res;
 }
 
+// lagrangean heuristic, feasible capacities, relax assignments
 int Controller::run_lagrCap()
 {  
    LAGR = new Lagrangian(GAP,GAP->zub); 
@@ -238,6 +249,7 @@ int Controller::run_lagrCap()
    return res;
 }
 
+// RINS
 int Controller::run_rins()
 {  int res; 
    RINS = new Rins(GAP,GAP->zub); 
@@ -257,6 +269,7 @@ int Controller::run_rins()
    return res;
 }
 
+// beam search
 int Controller::run_beam()
 {  
    BS = new BeamSearch(GAP,GAP->zub); 
@@ -269,6 +282,7 @@ int Controller::run_beam()
    return res;
 }
 
+// forward and backward
 int Controller::run_FandB()
 {  
    FB = new FandB(GAP,GAP->zub); 
@@ -281,6 +295,7 @@ int Controller::run_FandB()
    return res;
 }
 
+// corridor
 int Controller::run_Corridor()
 {  
    CORR = new Corridor(GAP,GAP->zub); 
@@ -293,6 +308,7 @@ int Controller::run_Corridor()
    return res;
 }
 
+// local branching
 int Controller::run_localBranching()
 {  
    LBR = new LocBranching(GAP,GAP->zub); 
@@ -305,6 +321,7 @@ int Controller::run_localBranching()
    return res;
 }
 
+// benders heuristic
 int Controller::run_benders()
 {
    BEND = new Benders(GAP, GAP->zub);
@@ -316,6 +333,7 @@ int Controller::run_benders()
    return res;
 }
 
+// kernel search
 int Controller::run_kernel()
 {
    KER = new Kernel(GAP, GAP->zub);
@@ -325,11 +343,14 @@ int Controller::run_kernel()
    return res;
 }
 
+// veri large scale neighborhood search
 int Controller::run_VLSN()
 {
    VLSN = new VeryLarge(GAP, GAP->zub);
-   int res = VLSN->verylarge(GAP->c,
-      GAP->conf->verylargeConf->maxiter
+   int res = VLSN->verylarge(GAP->c, 
+      GAP->conf->verylargeConf->k,
+      GAP->conf->verylargeConf->maxiter, 
+      (GAP->conf->isVerbose ? true : false)
    );
    if (VLSN != NULL) delete VLSN;
    VLSN = NULL;

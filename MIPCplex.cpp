@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <math.h>
 #include <string.h>
-#include "cplex.h"
+#include <ilcplex/cplex.h>
 
 // This simple routine frees up the pointer *ptr, and sets *ptr to NULL 
 static void free_and_null (char **ptr)
@@ -419,10 +419,23 @@ lend:
    return status;
 }
 
-   // Optimize the problem and obtain solution. 
+// Optimize the problem and obtain solution. 
 int MIPCplex::solveMIP(bool fMIPint, bool fVerbose)
 {  
    int i,j,cur_numrows,cur_numcols;
+
+   // The actual size of the problem is in cur_numrows and cur_numcols
+   cur_numrows = CPXgetnumrows(env, lp);
+   cur_numcols = CPXgetnumcols(env, lp);
+
+   if (xbest == NULL) xbest = (int *)   malloc(cur_numcols * sizeof(int));
+   if (x == NULL)     x     = (double *)malloc(cur_numcols * sizeof(double));
+   if (slack == NULL) slack = (double *)malloc(cur_numrows * sizeof(double));
+   if (xbest == NULL || x == NULL || slack == NULL)
+   {  status = CPXERR_NO_MEMORY;
+      cerr << "Could not allocate memory for solution structures.\n";
+      goto lend;
+   }
 
    // Write a copy of the problem to a file. 
    if(fVerbose)
@@ -440,34 +453,51 @@ int MIPCplex::solveMIP(bool fMIPint, bool fVerbose)
       goto lend;
    }
 
+   // solve linear
    status = CPXlpopt (env, lp);
    if ( status ) 
    {  cerr << "Failed to optimize LP.\n";
       goto lend;
    }
+   else
+   {
+      status = CPXsolution(env, lp, &solstat, &objval, x, pi, slack, dj);
+      if (status)
+      {
+         cerr << "Failed to obtain LP solution.\n";
+         goto lreturn;
+      }
+      cout << "\nLP Solution status = " << status << endl;
+      cout << "LP Solution value  = " << objval << endl;
 
-   // The actual size of the problem is in cur_numrows and cur_numcols
-   cur_numrows = CPXgetnumrows (env, lp);
-   cur_numcols = CPXgetnumcols (env, lp);
-   if(xbest==NULL)   xbest = (int *) malloc (cur_numcols * sizeof(int));
-   if(x == NULL)     x     = (double *) malloc (cur_numcols * sizeof(double));
-   if(slack == NULL) slack = (double *) malloc (cur_numrows * sizeof(double));
-   if ( xbest == NULL || x == NULL || slack == NULL ) 
-   {  status = CPXERR_NO_MEMORY;
-      cerr << "Could not allocate memory for solution structures.\n";
-      goto lend;
+      if (dj == NULL) dj = (double *)malloc(cur_numcols * sizeof(double));
+      if (pi == NULL) pi = (double *)malloc(cur_numrows * sizeof(double));
+      if (dj == NULL || pi == NULL)
+      {  status = CPXERR_NO_MEMORY;
+         cerr << "Could not allocate memory for solution.\n";
+         goto lend;
+      }
+      status = CPXgetpi(env, lp, pi, 0, CPXgetnumrows(env, lp) - 1);
+
+      if(fVerbose)
+      {  status = CPXgetlb(env, lp, lb, 0, cur_numcols - 1);
+         cout << "LB:  "; for (j = 0; j < cur_numcols; j++) cout << lb[j] << ", "; cout << endl;
+         status = CPXgetub(env, lp, ub, 0, cur_numcols - 1);
+         cout << "UB:  "; for (j = 0; j < cur_numcols; j++) cout << ub[j] << ", "; cout << endl;
+         cout << "sol: "; for (j = 0; j < cur_numcols; j++) cout << x[j] << ", "; cout << endl;
+      }
    }
 
    // go for intergality
    if(fMIPint)
-   {  
+   {  // logging best solutions
       LOGINFO lastSol;
       lastSol.lastincumbent = objval = CPXgetobjsen (env, lp) * 1e+35;
       lastSol.lastsol = (int *) malloc (cur_numcols * sizeof(int));
       lastSol.lastlog = -100000;
       lastSol.numcols = cur_numcols;
 
-      status = CPXsetinfocallbackfunc (env, logcallback, &lastSol);
+      status = CPXsetinfocallbackfunc (env, logcallback, &lastSol); // mind the logcallback
       if ( status ) 
       {  cerr << "Failed to set logging callback function.\n";
          goto lend;
@@ -479,7 +509,7 @@ int MIPCplex::solveMIP(bool fMIPint, bool fVerbose)
          goto lend;
       }
 
-      status = CPXmipopt (env, lp);
+      status = CPXmipopt(env, lp);
       if ( status ) 
       {  cerr << "Failed to optimize MIP. zbest = " << lastSol.lastincumbent << endl;
          for(j=0;j<cur_numcols;j++) x[j] = lastSol.lastsol[j];
@@ -491,36 +521,27 @@ int MIPCplex::solveMIP(bool fMIPint, bool fVerbose)
       {  cerr << "Failed to obtain MIP solution.\n";
          goto lreturn;
       }
-      cout << "\nMIP Solution status = " << status << endl;
+      cout << "\nMIP Solution status (101 optimal ok) = " << solstat << endl;
       cout << "MIP Solution value  = "   << objval << endl;
-   }
-   else
-   {
-      status = CPXsolution (env, lp, &solstat, &objval, x, pi, slack, dj);
-      if ( status ) 
-      {  cerr << "Failed to obtain LP solution.\n";
-         goto lreturn;
-      }
-      cout << "\nLP Solution status = " << status << endl;
-      cout << "LP Solution value  = " << objval << endl;
-
-      if(dj==NULL) dj = (double *) malloc (cur_numcols * sizeof(double));
-      if(pi==NULL) pi = (double *) malloc (cur_numrows * sizeof(double));
-      if ( dj == NULL || pi == NULL ) 
-      {  status = CPXERR_NO_MEMORY;
-         cerr << "Could not allocate memory for solution.\n";
-         goto lend;
-      }
-      status = CPXgetpi(env, lp, pi, 0, CPXgetnumrows(env, lp) - 1);
    }
 
    if(fVerbose)
    {
-      for (i = 0; i < cur_numrows; i++) 
+      int solnmethod, solntype, pfeasind, dfeasind;
+      status = CPXsolninfo(env, lp, &solnmethod, &solntype, &pfeasind, &dfeasind);
+
+      for (i = 0; i < cur_numrows; i++)
          cout << "Row: "<< i << " Slack = " << slack[i] << endl;
       for (j = 0; j < cur_numcols; j++) 
          if(x[j] > GAP->EPS)
             cout <<"Column " << j << " - " << colname[j] << "  Value = " << x[j] << endl;
+
+      status = CPXgetlb(env, lp, lb, 0, cur_numcols - 1);
+      status = CPXgetub(env, lp, ub, 0, cur_numcols - 1);
+
+      cout << "LB:  "; for (j = 0; j < cur_numcols; j++) cout << lb[j] << ", "; cout << endl;
+      cout << "UB:  "; for (j = 0; j < cur_numcols; j++) cout << ub[j] << ", "; cout << endl;
+      cout << "sol: "; for (j = 0; j < cur_numcols; j++) cout << x[j]  << ", "; cout << endl;
    }
 
 lreturn:

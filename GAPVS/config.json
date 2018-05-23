@@ -48,7 +48,8 @@
                     },
    "benders" : { "maxiter"   : 5
                },
-   "VLSN"    : { "maxiter"   : 3
+   "VLSN"    : { "maxiter"   : 1,
+                 "k"         : 4
                },
    "datafile"  : "c:\\AAAToBackup\\ricerche\\GAP\\istanze\\instances\\fileList.txt",
    "outdir"    : "outdir",
