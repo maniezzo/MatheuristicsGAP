@@ -108,14 +108,15 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;IL_STD;_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>c:\Program Files\IBM\ILOG\CPLEX_Studio128\cplex\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN64;_CONSOLE;IL_STD;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(CPLEX_STUDIO_DIR128)\cplex\include;$(CPLEX_STUDIO_DIR128)\concert\include</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cplex1263.lib;concert.lib;ilocplex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(CPLEX_STUDIO_DIR128)\cplex\lib\x64_windows_vs2017\stat_mda\cplex1280.lib;$(CPLEX_STUDIO_DIR128)\cplex\lib\x64_windows_vs2017\stat_mda\ilocplex.lib;$(CPLEX_STUDIO_DIR128)\concert\lib\x64_windows_vs2017\stat_mda\concert.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

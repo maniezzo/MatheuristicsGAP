@@ -125,10 +125,7 @@ void VeryLarge::fixVariables(int** c, MIPCplex* CPX, int* solIter, int k)
       lstClients.push_back(j);
 
    for(j=0;j<n;j++)
-   {  minr = DBL_MAX;
-      for(i=0;i<m;i++)
-         if(c[i][j] < minr)
-            minr = c[i][j]/(double)req[i][j];
+   {  minr = c[solIter[j]][j]/(double)req[solIter[j]][j];
       ratios.push_back(minr);
    }
 
