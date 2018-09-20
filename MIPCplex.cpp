@@ -542,6 +542,11 @@ int MIPCplex::solveMIP(bool fMIPint, bool fVerbose)
       cout << "LB:  "; for (j = 0; j < cur_numcols; j++) cout << lb[j] << ", "; cout << endl;
       cout << "UB:  "; for (j = 0; j < cur_numcols; j++) cout << ub[j] << ", "; cout << endl;
       cout << "sol: "; for (j = 0; j < cur_numcols; j++) cout << x[j]  << ", "; cout << endl;
+      for(j=0;j<GAP->n;j++)
+         for(i=0;i<GAP->m;i++)
+            if(x[i*GAP->n + j] > 0.001)
+               cout << i << " ";
+      cout << endl;
    }
 
 lreturn:
