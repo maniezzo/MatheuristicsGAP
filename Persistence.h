@@ -13,7 +13,7 @@ class Persistence
       Persistence();
       ~Persistence();
       Config* loadConfig();
-      void readJSONdata(string);
+      int readJSONdata(string);
 
       GeneralizedAssignemnt* GAP;
    protected:

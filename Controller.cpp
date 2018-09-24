@@ -25,12 +25,16 @@ Controller::~Controller()
 // legge i dati da file json
 void Controller::readJSONdata(string filename)
 {
-   P->readJSONdata(filename);
-   GAP->sol     = new int[GAP->n];
-   GAP->solbest = new int[GAP->n];
-   GAP->zub     = INT_MAX;
-   //srand (time(NULL));
-   srand (550);
+   int res = P->readJSONdata(filename);
+   if(res > 0)
+   {  GAP->sol     = new int[GAP->n];
+      GAP->solbest = new int[GAP->n];
+      GAP->zub     = INT_MAX;
+      //srand (time(NULL));
+      srand (550);
+   }
+   else
+      cout << "something wrong with input files" << endl;
 }
 
 // simple constructive heuristic

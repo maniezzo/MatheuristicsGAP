@@ -101,10 +101,11 @@ Config* Persistence::loadConfig()
 }
 
 // reads instance data from json formatted files
-void Persistence::readJSONdata(string fileList)
+int Persistence::readJSONdata(string fileList)
 {
    string infile,line,path;
    size_t i,j,cont;
+   vector <string> arrFiles;
 
    infile = fileList;
    cout << "Opening " << infile << endl;
@@ -112,18 +113,26 @@ void Persistence::readJSONdata(string fileList)
    path = fileList.substr(0, found);
    cout << "Data path: " << path << '\n';
 
-   ifstream fList (infile.c_str());
-   string str;
-   vector <string> arrFiles;
-   cont=0;
-   while ( std::getline(fList,str) )
+   try
    {
-      arrFiles.push_back(path+"\\"+str) ;
-      //cout << cont <<") " << arrFiles[cont] << endl;
-      cont++;
+      ifstream fList;
+      fList.open(infile.c_str(), std::ifstream::in);
+      fList.exceptions(ifstream::eofbit | ifstream::failbit | ifstream::badbit);
+      string str;
+      cont=0;
+      while ( std::getline(fList,str) && str.length()>0)
+      {  arrFiles.push_back(path+"\\"+str) ;
+         cout << cont <<") " << arrFiles[cont] << endl;
+         cont++;
+      }
+      fList.close();
    }
-   fList.close();
+   catch (std::exception const& e)
+   {  cout << "Error: " << e.what() << endl;
+      return -1;
+   }
 
+   // here I got the list of filenames correctly
    try
    {
       cout << "Reading " << arrFiles[0] << endl;
@@ -135,9 +144,8 @@ void Persistence::readJSONdata(string fileList)
       jData.close();
    }
    catch(std::exception const& e)
-   {
-      cout << "Error: " << e.what() << endl;
-      return;
+   {  cout << "Error: " << e.what() << endl;
+      return -1;
    }
 
    json::Value JSV = json::Deserialize(line);
@@ -165,4 +173,5 @@ void Persistence::readJSONdata(string fileList)
    GAP->zub = INT32_MAX;
 
    cout << "JSON data read" << endl;;
+   return 1;
 }
