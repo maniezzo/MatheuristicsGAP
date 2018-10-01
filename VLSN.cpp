@@ -35,7 +35,7 @@ int VeryLarge::verylarge(int** c, int k, int maxiter, bool fVerbose)
    MIPCplex* CPX = new MIPCplex(numRows, numCols, numNZrow);
    CPX->GAP = GAP;
    CPX->allocateMIP(fVerbose);
-   zubIter = zub;
+   zubIter = GAP->checkSol(sol);
    for (j = 0; j<n; j++) solIter[j] = sol[j];
    cout << "Solution: "; for (j = 0; j<n; j++) cout << solIter[j] << " "; cout << endl;
    cout << "VLSN. Starting from z=" << zubIter << endl;
@@ -131,7 +131,7 @@ void VeryLarge::fixVariables(int** c, MIPCplex* CPX, int* solIter, int k)
 
    numfix = n - min(k, n);      // numfix is the number of clients to fix
 
-   bool fGoRandom = true;       // if true select randomly, if false select best
+   bool fGoRandom = false;       // if true select randomly, if false select best
    if(fGoRandom)     // select random
    {  for(int kk=0;kk<n;kk++)
       {  

@@ -20,7 +20,7 @@ MetaLocalSearch::~MetaLocalSearch()
 
 int MetaLocalSearch::iteratedLocSearch(int** c, int maxIter, double alpha)
 {  int i,iter;
-   int z,z2=INT32_MAX;
+   int z,zorg,z2=INT32_MAX;
 
    VeryLarge* VLSN = new VeryLarge(GAP, GAP->zub);
 
@@ -32,11 +32,13 @@ int MetaLocalSearch::iteratedLocSearch(int** c, int maxIter, double alpha)
    // the algorithm
    iter = 0;
    while(iter<maxIter)
-   {  z = LS->opt10(c, true);
+   {  zorg = zub;
+      z = LS->opt11(c, true);
       // one iteration, fix k servers
-      z2 = VLSN->verylarge(GAP->c, GAP->conf->verylargeConf->k, 1, false);
+      if(z<zorg)
+         z2 = VLSN->verylarge(GAP->c, GAP->conf->verylargeConf->k, 1, false);
       dataPerturbation(c,cPert,alpha);
-      if(iter%1 == 0)
+      if(iter%100 == 0)
          cout << "[ILS] iter "<<iter<< " zub "<<zub<<" z "<< z << " z2 " << z2 << endl;
       iter++;
    }

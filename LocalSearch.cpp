@@ -75,23 +75,24 @@ l0:
    {  for(j2=j1+1;j2<n;j2++)
       {  delta = (c[sol[j1]][j1] + c[sol[j2]][j2]) - (c[sol[j1]][j2] + c[sol[j2]][j1]);
          if(delta > 0)
-         {  cap1 = capleft[sol[j1]] + req[j1] - req[j2];
-            cap2 = capleft[sol[j2]] + req[j2] - req[j1];
+         {  cap1 = capleft[sol[j1]] + req[sol[j1]][j1] - req[sol[j1]][j2];
+            cap2 = capleft[sol[j2]] + req[sol[j2]][j2] - req[sol[j2]][j1];
             if(cap1>=0 && cap2 >=0)
-            {  capleft[sol[j1]] += req[j1] - req[j2];
-               capleft[sol[j2]] += req[j2] - req[j1];
+            {  capleft[sol[j1]] += req[sol[j1]][j1] - req[sol[j1]][j2];
+               capleft[sol[j2]] += req[sol[j2]][j2] - req[sol[j2]][j1];
                temp    = sol[j1];
                sol[j1] = sol[j2];
                sol[j2] = temp;
                z -= delta;
                zcheck = GAP->checkSol(sol);
-               if(abs(z-zcheck) > GAP->EPS)
-                  cout << "[1-1] ohi" << endl;
-               if(isOriginal && z<zub)
-               {  zub = z;
-               for (int k = 0; k < n; k++) solbest[k] = sol[k];
-               cout << "[1-1 opt] new zub " << zub << endl;
-               }
+               if(isOriginal)
+                  if(abs(z-zcheck) > GAP->EPS)
+                     cout << "[1-1] ohi" << endl;
+                  else if(z<zub)
+                  {  zub = z;
+                     for (int k = 0; k < n; k++) solbest[k] = sol[k];
+                     cout << "[1-1 opt] new zub " << zub << endl;
+                  }
                goto l0;
             }
          }
