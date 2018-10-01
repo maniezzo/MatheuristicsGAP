@@ -61,15 +61,15 @@ int main()
          break;
       case (6): 
          cout << "Simulated Annealing" << endl;
-         C->simAnn();
+         C->run_simAnn();
          break;
       case (7): 
          cout << "Tabu Search" << endl;
-         C->tabuSearch();
+         C->run_tabuSearch();
          break;
       case (8):
          cout << "Iterated Local Search" << endl;
-         C->iteratedLS();
+         C->run_iteratedLS();
          break;
       case (9):
          cout << "Ejection chain" << endl;

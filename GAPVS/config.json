@@ -17,8 +17,8 @@
           },
    "EC" : { "maxiter" : 50
           },
-   "ILS": { "maxiter" : 10000,
-            "alpha"   : 0.2
+   "ILS": { "maxiter" : 500000,
+            "alpha"   : 0.6
           },
    "lagrAss" : { "alpha"     : 2.5,
                  "alphastep" : 0.97,

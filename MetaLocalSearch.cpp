@@ -20,7 +20,9 @@ MetaLocalSearch::~MetaLocalSearch()
 
 int MetaLocalSearch::iteratedLocSearch(int** c, int maxIter, double alpha)
 {  int i,iter;
-   int z;
+   int z,z2=INT32_MAX;
+
+   VeryLarge* VLSN = new VeryLarge(GAP, GAP->zub);
 
    // allocate perturbed matrix
    int** cPert = (int**) malloc(m * sizeof(int *));
@@ -30,10 +32,12 @@ int MetaLocalSearch::iteratedLocSearch(int** c, int maxIter, double alpha)
    // the algorithm
    iter = 0;
    while(iter<maxIter)
-   {  z = LS->opt10(c);
+   {  z = LS->opt10(c, true);
+      // one iteration, fix k servers
+      z2 = VLSN->verylarge(GAP->c, GAP->conf->verylargeConf->k, 1, false);
       dataPerturbation(c,cPert,alpha);
-      if(iter%1000 == 0)
-         cout << "[ILS] iter "<<iter<< " zub "<<zub<<" z "<<z<<endl;
+      if(iter%1 == 0)
+         cout << "[ILS] iter "<<iter<< " zub "<<zub<<" z "<< z << " z2 " << z2 << endl;
       iter++;
    }
 
@@ -43,6 +47,10 @@ int MetaLocalSearch::iteratedLocSearch(int** c, int maxIter, double alpha)
          free(cPert[i]);
       free(cPert);
    }
+
+   // release matheuristic module
+   if (VLSN != NULL) delete VLSN;
+   VLSN = NULL;
 
    return zub;
 }
@@ -54,10 +62,10 @@ void MetaLocalSearch::dataPerturbation(int** c,int** cPert, double alpha)
    for(i=0;i<m;i++)
       for(j=0;j<n;j++)
       {  delta = alpha * (rand()/RAND_MAX);
-         cPert[i][j] = (int) round( (1 + delta - alpha/2) * c[i][j] );
+         cPert[i][j] = (int) (round( (1 + delta - alpha/2) * c[i][j] ));
       }
 
-   LS->opt10(cPert);
+   LS->opt11(cPert,false);
    if(GAP->checkSol(sol) == INT_MAX)
       cout << "[dataPerturbation] error" << endl;
 }

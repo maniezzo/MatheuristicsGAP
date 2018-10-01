@@ -17,8 +17,8 @@ LocalSearch::~LocalSearch()
 }
 
 // tries each client with each other facility
-int LocalSearch::opt10(int** c)
-{  int z=0;
+int LocalSearch::opt10(int** c, bool isOriginal)
+{  int z=0,zorg;
    int i, isol, j;
    vector<int> capleft(m);
 
@@ -27,6 +27,7 @@ int LocalSearch::opt10(int** c)
    {  capleft[sol[j]] -= req[sol[j]][j];
       z += c[sol[j]][j];
    }
+   zorg=z;
 
 l0:
    for (j = 0; j < n; j++)
@@ -41,7 +42,7 @@ l0:
             capleft[i]    -= req[i][j];
             capleft[isol] += req[isol][j];
             z -= (c[isol][j] - c[i][j]);
-            if(z<zub)
+            if(isOriginal && z<zub)
             {  zub = z;
                for(int k=0;k<n;k++) solbest[k] = sol[k];
                cout << "[1-0 opt] new zub " << zub << endl;
@@ -50,14 +51,15 @@ l0:
          }
       }
    }
-
+   if(z<zorg) 
+      cout << "2opt improved" << endl;
    return z;
 }
 
 // scambio assegnamento fra due clienti
-double LocalSearch::opt11(int** c)
+double LocalSearch::opt11(int** c, bool isOriginal)
 {  int i,j,j1,j2,temp,cap1,cap2;
-   int delta, z=0, zcheck;
+   int delta, z=0, zcheck, zorg;
    vector<int> capleft(m);
 
    for(i=0;i<m;i++) capleft[i] = GAP->cap[i];
@@ -66,6 +68,7 @@ double LocalSearch::opt11(int** c)
       z += c[sol[j]][j];
    }
    zcheck = GAP->checkSol(sol);
+   zorg = z;
 
 l0:
    for(j1=0;j1<n;j1++)
@@ -84,9 +87,10 @@ l0:
                zcheck = GAP->checkSol(sol);
                if(abs(z-zcheck) > GAP->EPS)
                   cout << "[1-1] ohi" << endl;
-               if(z<zub)
+               if(isOriginal && z<zub)
                {  zub = z;
-                  cout << "[1-1 opt] new zub " << zub << endl;
+               for (int k = 0; k < n; k++) solbest[k] = sol[k];
+               cout << "[1-1 opt] new zub " << zub << endl;
                }
                goto l0;
             }
@@ -100,6 +104,8 @@ l0:
    if(abs(zcheck - z) > GAP->EPS)
       cout << "[1.1opt] Ahi ahi" << endl;
    zcheck = GAP->checkSol(sol);
+   if (z < zorg)
+      cout << "2opt improved" << endl;
    return z;
 }
 

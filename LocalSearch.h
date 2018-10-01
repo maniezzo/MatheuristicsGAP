@@ -9,8 +9,8 @@ class LocalSearch
 
       LocalSearch(GeneralizedAssignemnt*, int&);
       ~LocalSearch();
-      int opt10(int**);
-      double opt11(int**);
+      int opt10(int**,bool);
+      double opt11(int**,bool);
       void neigh21();
 
    private:

@@ -108,7 +108,7 @@ double LowerBound::lagrangianDecomposition(int** c, double alpha, double alphast
          if(zcurr < 10*zlb)
          {  for(int j=0;j<n;j++) sol[j] = lbsol[j];
             LocalSearch* LS = new LocalSearch(GAP, GAP->zub);
-            LS->opt10(c);    
+            LS->opt10(c, true);
             delete LS;        
          }
          if(zcurr<zub)

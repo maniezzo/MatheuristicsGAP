@@ -115,14 +115,14 @@ int Controller::opt10()
       return INT_MAX;
    }
 
-   z = LS->opt10(GAP->c);
+   z = LS->opt10(GAP->c,true);
    zcheck = GAP->checkSol(GAP->sol);
    if (abs(zcheck - z) > GAP->EPS)
    {  cout << "[1.0opt] Ahi ahi" << endl;
       z = INT_MAX;
    }
 
-   z = LS->opt11(GAP->c);
+   z = LS->opt11(GAP->c,true);
    zcheck = GAP->checkSol(GAP->sol);
    if (abs(zcheck - z) > GAP->EPS)
    {
@@ -138,7 +138,7 @@ int Controller::opt10()
 }
 
 // simulated annealing
-int Controller::simAnn()
+int Controller::run_simAnn()
 {
    SA = new SimAnnealing(GAP, GAP->zub);
 
@@ -159,7 +159,7 @@ int Controller::simAnn()
 }
 
 // tabu search
-int Controller::tabuSearch()
+int Controller::run_tabuSearch()
 {
    TS = new TabuSearch(GAP, GAP->zub);
 
@@ -201,7 +201,7 @@ int Controller::run_ejection()
 }
 
 // iterated local search
-int Controller::iteratedLS()
+int Controller::run_iteratedLS()
 {  
    if(GAP->zub==INT_MAX) 
    {  cout << "Uninitialized solution" << endl;

@@ -53,9 +53,9 @@ class Controller
       double exactCplex();
       int    run_mthg();
       int    opt10();
-      int    simAnn();
-      int    tabuSearch();
-      int    iteratedLS();
+      int    run_simAnn();
+      int    run_tabuSearch();
+      int    run_iteratedLS();
       int    run_genAlgo();
       int    run_ejection();
       int    run_lagrAss();

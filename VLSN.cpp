@@ -1,11 +1,5 @@
 ﻿#include "VLSN.h"
 
-/////////
-/////////
-///////// NOTE: TO BE UPDATED !!!!!!!!!!!!!!!!!!!!!!!
-/////////
-/////////
-
 VeryLarge::VeryLarge(GeneralizedAssignemnt* GAPinstance, int & zz) : zub(zz)
 {
    //ctor
@@ -83,8 +77,10 @@ int VeryLarge::verylarge(int** c, int k, int maxiter, bool fVerbose)
                cout << "[verylarge] No feasible solution at this iteration" << endl;
             else
             {
-               cout << "[VLSN] iter " << iter << " zubIter " << zubIter << endl;
-               cout << "Solution: "; for (j = 0; j<n; j++) cout << solIter[j] << " "; cout << endl;
+               if(fVerbose)
+               {  cout << "[VLSN] iter " << iter << " zubIter " << zubIter << endl;
+                  cout << "Solution: "; for (j = 0; j<n; j++) cout << solIter[j] << " "; cout << endl;
+               }
 
                if (zubIter < zub)
                {
@@ -112,7 +108,7 @@ lend:
 // this frees the  variables in the ejection set
 void VeryLarge::fixVariables(int** c, MIPCplex* CPX, int* solIter, int k)
 {
-   int i, j, isol, rand, status,numfix;
+   int i, j, isol, status, numfix, temp;
    bool isInSet;
    double minr;
    vector<int> lstClients;
@@ -134,10 +130,25 @@ void VeryLarge::fixVariables(int** c, MIPCplex* CPX, int* solIter, int k)
    std::sort(indRatios.begin(), indRatios.end(), compRatios);
 
    numfix = n - min(k, n);      // numfix is the number of clients to fix
-   for (int ii = 0; ii<numfix; ii++)
-   {  i = indRatios[ii];
-      lstSet.push_back(lstClients[i]);          // set contains numfix best clients
+
+   bool fGoRandom = true;       // if true select randomly, if false select best
+   if(fGoRandom)     // select random
+   {  for(int kk=0;kk<n;kk++)
+      {  
+         j = std::rand() % n;
+         i = std::rand() % n;
+         temp = lstClients[i];
+         lstClients[i] = lstClients[j];
+         lstClients[j] = temp;
+      }
+      for (int ii = 0; ii < numfix; ii++)
+         lstSet.push_back(lstClients[ii]);          // set contains numfix best clients
    }
+   else              // select best
+      for (int ii = 0; ii<numfix; ii++)
+      {  i = indRatios[ii];
+         lstSet.push_back(lstClients[i]);          // set contains numfix best clients
+      }
 
    int  cnt = n * m;
    int* indices = new int[cnt];  // indices of the columns corresponding to the variables for which bounds are to be changed

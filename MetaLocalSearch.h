@@ -2,6 +2,7 @@
 #define METALOCALSEARCH_H
 #include "GAP.h"
 #include "LocalSearch.h"
+#include "VLSN.h"
 
 class MetaLocalSearch
 {
