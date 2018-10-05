@@ -199,6 +199,79 @@ TERMINATE:
 
 }  // END populatebyrow 
 
+// Populate by row a subproblem
+int MIPCplex::populatebyrow (CPXENVptr env, CPXLPptr lp, int** c, int n, int m, int** req, int*  cap)
+{  int i,j,ij,idRow,numNZrow;
+
+   CPXchgobjsen (env, lp, CPX_MIN);  // Problem is minimization 
+
+   // Create the new columns.
+   ij = 0;
+   for(i=0;i<m;i++)
+      for(j=0;j<n;j++)
+      {  obj[ij] = c[i][j];
+         lb[ij]  = 0;
+         ub[ij]  = 1.0;
+         ctype[ij]   = 'B'; // 'B', 'I','C' to indicate binary, general integer, continuous 
+         lptype[ij]  = 'C'; // 'B', 'I','C' to indicate binary, general integer, continuous 
+         colname[ij] = (char *) malloc(sizeof(char) * (11));   // why not 11?
+         sprintf(colname[ij],"%s%d","x",ij);
+         ij++;
+      }
+
+   status = CPXnewcols (env, lp, numCols, obj, lb, ub, NULL, colname);
+   if ( status )  goto TERMINATE;
+
+   // Assignment constraints.  
+   idRow = 0;
+   for(j=0;j<n;j++)
+   {
+      numNZrow = 0;  // number of nonzero element in the row to add
+      rmatbeg[0] = 0;     
+      sense[0] = 'E';
+      rhs[0]   = 1.0;
+      rowname[idRow] = (char *) malloc(sizeof(char) * (11));   // why not 11?
+      sprintf(rowname[0],"%s%d","c",idRow);
+      for(i=0;i<m;i++)
+      {
+         rmatind[i] = j+ n*i;
+         rmatval[i] = 1.0;
+         numNZrow++;
+      }
+      rmatbeg[1] = numNZrow;
+      status = CPXaddrows (env, lp, 0, 1, numNZrow, rhs, sense, rmatbeg, rmatind, rmatval, NULL, rowname);
+      if ( status )  goto TERMINATE;
+      idRow++;
+   }
+
+   // Capacity constraints.  
+   for(i=0;i<m;i++)
+   {
+      numNZrow = 0;  // number of nonzero element in the row to add
+      rmatbeg[0] = 0;     
+      sense[0] = 'L';
+      rhs[0]   = cap[i];
+      rowname[idRow] = (char *) malloc(sizeof(char) * (11));   // why not 11?
+      sprintf(rowname[0],"%s%d","c",idRow);
+      for(j=0;j<n;j++)
+      {
+         rmatind[numNZrow] = j+ n*i;
+         rmatval[numNZrow] = req[i][j];
+         numNZrow++;
+      }
+      rmatbeg[1] = numNZrow;
+      status = CPXaddrows (env, lp, 0, 1, numNZrow, rhs, sense, rmatbeg, rmatind, rmatval, NULL, rowname);
+      if ( status )  goto TERMINATE;
+      idRow++;
+   }
+
+TERMINATE:
+   if( status )
+      cout << " >>>>>>>>>>>> Error in constraint definition <<<<<<<<<<<<<<<" << endl;
+   return (status);
+
+}  // END populatebyrow 
+
 // To populate by row, we first create the columns, and then add the rows.  
 int MIPCplex::populateDual(CPXENVptr env, CPXLPptr lp, vector<int> xbar, int nRows, int nCols)
 {
@@ -408,6 +481,70 @@ int MIPCplex::allocateMIP(bool isVerbose)
 
    // Populate the problem with the GAP data.
    status = populatebyrow (env, lp);
+   if ( status ) 
+   {  cerr << "Failed to populate problem.\n";
+      goto lend;
+   }
+
+   return status;
+lend:
+   freeMIP();     // releases menory structures
+   return status;
+}
+
+// allocates and initializes the cplex environment for a subproblem
+int MIPCplex::allocateMIP(int** c, int n, int m, int** req, int* cap, bool isVerbose)
+{  
+   env    = NULL;
+   lp     = NULL;
+   status = 0;
+
+   pi    = NULL;
+   slack = NULL;
+   dj    = NULL;  
+   x     = NULL;
+
+   cout << "Allocating CPLEX" << endl;
+
+   // Initialize the CPLEX environment 
+   env = CPXopenCPLEX (&status);
+   /* A call to CPXgeterrorstring will produce the text of
+   the error message.  For other CPLEX routines, the errors will
+   be seen if the CPX_PARAM_SCRIND indicator is set to CPX_ON. */
+   if ( env == NULL ) 
+   {  char  errmsg[1024];
+      cerr << "Could not open CPLEX environment.\n";
+      CPXgeterrorstring (env, status, errmsg);
+      cerr << errmsg;
+      goto lend;
+   }
+
+   // Turn on output to the screen 
+   if(isVerbose)
+      status = CPXsetintparam (env, CPX_PARAM_SCRIND, CPX_ON);
+   else
+      status = CPXsetintparam (env, CPX_PARAM_SCRIND, CPX_OFF);
+   if ( status ) 
+   {  cerr << "Failure to turn on screen indicator, error " << status << endl;
+      goto lend;
+   }
+
+   // Turn on data checking 
+   status = CPXsetintparam (env, CPX_PARAM_DATACHECK, CPX_ON);
+   if ( status ) 
+   {  cerr << "Failure to turn on data checking, error " << status << endl;
+      goto lend;
+   }
+
+   // Create the problem. 
+   lp = CPXcreateprob (env, &status, "GAPsubinst");
+   if ( lp == NULL ) 
+   {  cerr << "Failed to create LP.\n";
+      goto lend;
+   }
+
+   // Populate the problem with the GAP data.
+   status = populatebyrow (env, lp, c, n, m, req, cap);
    if ( status ) 
    {  cerr << "Failed to populate problem.\n";
       goto lend;

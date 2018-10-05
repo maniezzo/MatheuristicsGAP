@@ -18,19 +18,20 @@ int main()
       cout << (C->GAP->zub == INT_MAX ? " X" : " 6") << ") Simulated Annealing" << endl;
       cout << (C->GAP->zub == INT_MAX ? " X" : " 7") << ") Tabu Search" << endl;
       cout << (C->GAP->zub == INT_MAX ? " X" : " 8") << ") Iterated Local Search (with data perturbation)" << endl;
-      cout << " 9) Ejection chains" << endl;
-      cout << "10) Genetic algorithm" << endl;
+      cout << (C->GAP->zub == INT_MAX ? " X" : " 9") << ") GRASP" << endl;
+      cout << "10) Ejection chains" << endl;
+      cout << "11) Genetic algorithm" << endl;
       cout << " ----------------------------------- 3: MH uniques" << endl;
-      cout << "11) Lagrangian, relax capacities" << endl;
-      cout << "12) Lagrangian, relax assignments" << endl;
-      cout << (C->GAP->zub == INT_MAX ? "X" : "13") << ") Rins" << endl;
-      cout << "14) Beam search" << endl;
-      cout << "15) Forward & Backward" << endl;
-      cout << (C->GAP->zub == INT_MAX ? "X" : "16") << ") Corridor" << endl;
-      cout << (C->GAP->zub == INT_MAX ? "X" : "17") << ") Local Branching" << endl;
-      cout << (C->GAP->zub == INT_MAX ? "X" : "18") << ") Benders" << endl;
-      cout << (C->GAP->zub == INT_MAX ? "X" : "19") << ") Kernel search" << endl;
-      cout << (C->GAP->zub == INT_MAX ? "X" : "20") << ") Very large-scale neigh search" << endl;
+      cout << "12) Lagrangian, relax capacities" << endl;
+      cout << "13) Lagrangian, relax assignments" << endl;
+      cout << (C->GAP->zub == INT_MAX ? "X" : "14") << ") Rins" << endl;
+      cout << "15) Beam search" << endl;
+      cout << "16) Forward & Backward" << endl;
+      cout << (C->GAP->zub == INT_MAX ? "X" : "17") << ") Corridor" << endl;
+      cout << (C->GAP->zub == INT_MAX ? "X" : "18") << ") Local Branching" << endl;
+      cout << (C->GAP->zub == INT_MAX ? "X" : "19") << ") Benders" << endl;
+      cout << (C->GAP->zub == INT_MAX ? "X" : "20") << ") Kernel search" << endl;
+      cout << (C->GAP->zub == INT_MAX ? "X" : "21") << ") Very large-scale neigh search" << endl;
       cout << endl;
       cout << "0) Exit" << endl;
       cout << "\n->";
@@ -72,50 +73,54 @@ int main()
          C->run_iteratedLS();
          break;
       case (9):
+         cout << "GRASP" << endl;
+         C->run_GRASP();
+         break;
+      case (10):
          cout << "Ejection chain" << endl;
          C->run_ejection();
          break;
-      case (10):
+      case (11):
          cout << "Genetic algorithm" << endl;
          C->run_genAlgo();
          break;
-      case (11):
+      case (12):
          cout << "Lagrangian, relax assignments" << endl;
          C->run_lagrAss();
          break;
-      case (12): 
+      case (13): 
          cout << "Lagrangian, relax capacities" << endl;
          C->run_lagrCap();
          break;
-      case (13): 
+      case (14): 
          cout << "Rins" << endl;
          C->run_rins();
          break;
-      case (14): 
+      case (15): 
          cout << "Beam search" << endl;
          C->run_beam();
          break;
-      case (15): 
+      case (16): 
          cout << "Forward & Backward" << endl;
          C->run_FandB();
          break;
-      case (16): 
+      case (17): 
          cout << "Corridor" << endl;
          C->run_Corridor();
          break;
-      case (17): 
+      case (18): 
          cout << "Local branching" << endl;
          C->run_localBranching();
          break;
-      case (18):
+      case (19):
          cout << "Benders" << endl;
          C->run_benders();
          break;
-      case (19):
+      case (20):
          cout << "Kernel" << endl;
          C->run_kernel();
          break;
-      case (20):
+      case (21):
          cout << "VLSN" << endl;
          C->run_VLSN();
          break;

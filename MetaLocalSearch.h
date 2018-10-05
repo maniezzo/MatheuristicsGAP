@@ -12,10 +12,12 @@ class MetaLocalSearch
       MetaLocalSearch(GeneralizedAssignemnt*, LocalSearch*, int&);
       ~MetaLocalSearch();
       int iteratedLocSearch(int**,int,double);
+      double MetaLocalSearch::GRASP(int maxIter, int candNum);
 
    private:
       LocalSearch* LS;
       void dataPerturbation(int**,int**,double);
+      double MetaLocalSearch::GRASPcontruct(int candNum);
 
       // local mirrors
       int   m,n;

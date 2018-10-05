@@ -46,6 +46,10 @@ Config* Persistence::loadConfig()
    GAP->conf->IterLS->maxiter = jILS["maxiter"];
    GAP->conf->IterLS->alpha = jILS["alpha"];
 
+   json::Object jGRASP = JSV["GRASP"];
+   GAP->conf->GRASP->maxiter = jGRASP["maxiter"];
+   GAP->conf->GRASP->candNum = jGRASP["candNum"];
+
    json::Object jGA = JSV["GA"];
    GAP->conf->GA->maxiter = jGA["maxiter"];
    GAP->conf->GA->numpop = jGA["numpop"];

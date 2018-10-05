@@ -20,6 +20,9 @@
    "ILS": { "maxiter" : 5000,
             "alpha"   : 0.2
           },
+   "GRASP":    { "maxiter" : 5000,
+                 "candNum" : 2
+               },
    "lagrAss" : { "alpha"     : 2.5,
                  "alphastep" : 0.97,
                  "minalpha"  : 0.001,

@@ -43,16 +43,15 @@ l0:
             capleft[isol] += req[isol][j];
             z -= (c[isol][j] - c[i][j]);
             if(isOriginal && z<zub)
-            {  zub = z;
-               for(int k=0;k<n;k++) solbest[k] = sol[k];
+            {  GAP->storeBest(sol,z);
                cout << "[1-0 opt] new zub " << zub << endl;
             }
             goto l0;
          }
       }
    }
-   if(z<zorg) 
-      cout << "2opt improved" << endl;
+   //if(z<zorg) 
+   //   cout << "2opt improved" << endl;
    return z;
 }
 
@@ -105,8 +104,8 @@ l0:
    if(abs(zcheck - z) > GAP->EPS)
       cout << "[1.1opt] Ahi ahi" << endl;
    zcheck = GAP->checkSol(sol);
-   if (z < zorg)
-      cout << "2opt improved" << endl;
+   //if (z < zorg)
+   //   cout << "2opt improved" << endl;
    return z;
 }
 

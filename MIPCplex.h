@@ -48,6 +48,7 @@ class MIPCplex
       double*  dj;  
 
       int allocateMIP(bool isVerbose);
+      int allocateMIP(int** c, int n, int m, int** req, int* cap, bool isVerbose);
       int allocateDual(int, int, vector<int> xbar, bool isVerbose);
       int freeMIP();
       int solveMIP(bool fMIPint, bool fVerbose);
@@ -61,7 +62,8 @@ class MIPCplex
 
       //int populatebycolumn (CPXENVptr env, CPXLPptr lp);
       int populatebyrow (CPXENVptr, CPXLPptr);
-      int MIPCplex::populateDual(CPXENVptr env, CPXLPptr lp, vector<int>, int, int);
+      int populatebyrow (CPXENVptr env, CPXLPptr lp, int** c, int n, int m, int** req, int* cap);
+      int populateDual(CPXENVptr env, CPXLPptr lp, vector<int>, int, int);
 };
 
 #endif // CPLEX_H

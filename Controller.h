@@ -56,6 +56,7 @@ class Controller
       int    run_simAnn();
       int    run_tabuSearch();
       int    run_iteratedLS();
+      int    run_GRASP();
       int    run_genAlgo();
       int    run_ejection();
       int    run_lagrAss();

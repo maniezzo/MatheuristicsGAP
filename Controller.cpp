@@ -223,6 +223,29 @@ int Controller::run_iteratedLS()
    }
 }
 
+// GRASP
+int Controller::run_GRASP()
+{  
+   if(GAP->zub==INT_MAX) 
+   {  cout << "Uninitialized solution" << endl;
+      return INT_MAX;
+   }
+   else
+   {
+      LS = new LocalSearch(GAP, GAP->zub);
+      MLS = new MetaLocalSearch(GAP, LS, GAP->zub);
+      MLS->GRASP(GAP->conf->GRASP->maxiter,
+                 GAP->conf->GRASP->candNum);
+      if (LS != NULL) delete LS;
+      LS = NULL;
+      if (MLS != NULL) delete MLS;
+      MLS = NULL;
+
+      return GAP->zub;
+   }
+}
+
+
 // lagrangean heuristic, feasible assignments, relax capacities
 int Controller::run_lagrAss()
 {  

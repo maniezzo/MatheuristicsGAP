@@ -8,6 +8,7 @@ Config::Config()
    GA = new GeneticConf();
    EC = new EjectionConf();
    IterLS  = new IteratedLS();
+   GRASP   = new GreedyRASP();
    lagrAss = new LagrAss();
    lagrCap = new LagrCap();
    rinsConf= new RinsConf();
@@ -250,9 +251,15 @@ int GeneralizedAssignemnt::aversion(int i, int j)
 
    return res;
 }
+
+// stores best so far solution
+void GeneralizedAssignemnt::storeBest(int* sol, double z)
+{  zub = z;
+   for(int j=0;j<n;j++) solbest[j] = sol[j];
+}
+
 // **************************************************************************** //
 // *************************** Free functions ********************************* //
-
 
 // computes assignment regrets for each client
 void computeRegrets(int** c, int n, int m, vector<int> & regrets)

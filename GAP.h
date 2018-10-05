@@ -42,6 +42,12 @@ class Config
          double alpha;
       };
 
+      class GreedyRASP
+      {  public:
+         int maxiter;
+         int candNum;
+      };
+
       class GeneticConf
       {  public:
          int maxiter;
@@ -120,6 +126,7 @@ class Config
       GeneticConf*  GA;
       EjectionConf* EC;
       IteratedLS*   IterLS;
+      GreedyRASP*   GRASP;
       LagrAss*      lagrAss;
       LagrCap*      lagrCap;
       LocBranching* locBranching;
@@ -160,6 +167,7 @@ class GeneralizedAssignemnt
       int fixSol(int* infeasSol, int* zsol);        // recovers feasibility in case of partial or overassigned solution
       int fixSolViaKnap(int* infeasSol, int* zsol); // recovers feasibility via knapsacks on residual capacities
       int aversion(int i,int j);
+      void storeBest(int* sol, double z);           // stores best so far solution
 };
 
 // free
