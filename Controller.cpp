@@ -30,8 +30,6 @@ void Controller::readJSONdata(string filename)
    {  GAP->sol     = new int[GAP->n];
       GAP->solbest = new int[GAP->n];
       GAP->zub     = INT_MAX;
-      //srand (time(NULL));
-      srand (550);
    }
    else
       cout << "something wrong with input files" << endl;

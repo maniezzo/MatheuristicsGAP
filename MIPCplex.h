@@ -57,7 +57,6 @@ class MIPCplex
 
    private:
       int    solstat;
-
       int    *xbest;
 
       //int populatebycolumn (CPXENVptr env, CPXLPptr lp);

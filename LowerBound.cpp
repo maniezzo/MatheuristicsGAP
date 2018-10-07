@@ -78,23 +78,26 @@ double LowerBound::linearBound(int** c, int n, int m, int** req, int* cap)
 {  double lb;
    int numRows,numCols,numNZrow;
    int i,j;
+   bool isVerbose = false;
    numRows = n+m;   // num of constraints
    numCols = n*m;   // num of variables
    numNZrow= n*m;   // max num of nonzero values in a row
    CPX = new MIPCplex(numRows,numCols,numNZrow);
    CPX->GAP = GAP;
-   CPX->allocateMIP(c, n, m, req, cap, true);    // linear bound, verbose output
+   CPX->allocateMIP(c, n, m, req, cap, isVerbose);    // linear bound, verbose output
    int statusMIP = CPX->solveMIP(false,false);
    if(statusMIP == 0)
    {  lb = CPX->objval;
-      cout << "Linear bound: "<< lb << endl;
-      if(n*m < 101)                       // print LP if instance is small
-      {  cout << " - Solution: " << endl; 
-         for (i = 0; i < m; ++i)
-         {  cout << "   " << i << ": ";
-            for (j = 0; j < n; ++j)
-               cout << CPX->x[i*n+j] << "\t";
-            cout << endl;
+      if(isVerbose)
+      {  cout << "Linear bound: "<< lb << endl;
+         if(n*m < 101)                       // print LP if instance is small
+         {  cout << " - Solution: " << endl; 
+            for (i = 0; i < m; ++i)
+            {  cout << "   " << i << ": ";
+               for (j = 0; j < n; ++j)
+                  cout << CPX->x[i*n+j] << "\t";
+               cout << endl;
+            }
          }
       }
    }

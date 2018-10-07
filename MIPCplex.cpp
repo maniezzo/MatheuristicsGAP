@@ -504,7 +504,8 @@ int MIPCplex::allocateMIP(int** c, int n, int m, int** req, int* cap, bool isVer
    dj    = NULL;  
    x     = NULL;
 
-   cout << "Allocating CPLEX" << endl;
+   if(isVerbose)
+      cout << "Allocating CPLEX" << endl;
 
    // Initialize the CPLEX environment 
    env = CPXopenCPLEX (&status);
@@ -557,7 +558,7 @@ lend:
 }
 
 // Optimize the problem and obtain solution. 
-int MIPCplex::solveMIP(bool fMIPint, bool fVerbose)
+int MIPCplex::solveMIP(bool fMIPint, bool isVerbose)
 {  
    int i,j,cur_numrows,cur_numcols;
 
@@ -575,7 +576,7 @@ int MIPCplex::solveMIP(bool fMIPint, bool fVerbose)
    }
 
    // Write a copy of the problem to a file. 
-   if(fVerbose)
+   if(isVerbose)
    {  status = CPXwriteprob (env, lp, "GAP.lp", NULL);
       if ( status ) 
       {  cerr << "Failed to write problem to disk.\n";
@@ -604,8 +605,10 @@ int MIPCplex::solveMIP(bool fMIPint, bool fVerbose)
          cerr << "Failed to obtain LP solution.\n";
          goto lreturn;
       }
-      cout << "\nLP Solution status = " << status << endl;
-      cout << "LP Solution value  = " << objval << endl;
+      if(isVerbose)
+      {  cout << "\nLP Solution status = " << status << endl;
+         cout << "LP Solution value  = " << objval << endl;
+      }
 
       if (dj == NULL) dj = (double *)malloc(cur_numcols * sizeof(double));
       if (pi == NULL) pi = (double *)malloc(cur_numrows * sizeof(double));
@@ -616,7 +619,7 @@ int MIPCplex::solveMIP(bool fMIPint, bool fVerbose)
       }
       status = CPXgetpi(env, lp, pi, 0, CPXgetnumrows(env, lp) - 1);
 
-      if(fVerbose)
+      if(isVerbose)
       {  status = CPXgetlb(env, lp, lb, 0, cur_numcols - 1);
          cout << "LB:  "; for (j = 0; j < cur_numcols; j++) cout << lb[j] << ", "; cout << endl;
          status = CPXgetub(env, lp, ub, 0, cur_numcols - 1);
@@ -662,7 +665,7 @@ int MIPCplex::solveMIP(bool fMIPint, bool fVerbose)
       cout << "MIP Solution value  = "   << objval << endl;
    }
 
-   if(fVerbose)
+   if(isVerbose)
    {
       int solnmethod, solntype, pfeasind, dfeasind;
       status = CPXsolninfo(env, lp, &solnmethod, &solntype, &pfeasind, &dfeasind);
@@ -719,6 +722,7 @@ int MIPCplex::freeMIP()
       }
    }
 
-   cout << "CPLEX released" << endl;
+   if(lp != NULL )
+      cout << "CPLEX released" << endl;
    return (status);
 }

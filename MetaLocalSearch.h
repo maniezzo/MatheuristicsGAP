@@ -3,6 +3,7 @@
 #include "GAP.h"
 #include "LocalSearch.h"
 #include "VLSN.h"
+#include "LowerBound.h"
 
 class MetaLocalSearch
 {
@@ -16,8 +17,9 @@ class MetaLocalSearch
 
    private:
       LocalSearch* LS;
+      LowerBound*  LB;
       void dataPerturbation(int**,int**,double);
-      double MetaLocalSearch::GRASPcontruct(int candNum);
+      double MetaLocalSearch::GRASPcontruct(int candNum, bool isMatheuristic);
 
       // local mirrors
       int   m,n;

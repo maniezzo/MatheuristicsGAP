@@ -5,6 +5,7 @@ MetaLocalSearch::MetaLocalSearch(GeneralizedAssignemnt* GAPinstance, LocalSearch
    //ctor
    GAP = GAPinstance;
    LS  = LSearch;
+   LB = new LowerBound(GAP,zub);
 
    m = GAP->m;
    n = GAP->n;
@@ -15,12 +16,12 @@ MetaLocalSearch::MetaLocalSearch(GeneralizedAssignemnt* GAPinstance, LocalSearch
 
 MetaLocalSearch::~MetaLocalSearch()
 {
-   //dtor
+   delete LB;
 }
 
 int MetaLocalSearch::iteratedLocSearch(int** c, int maxIter, double alpha)
 {  int i,iter;
-   int z,zorg,z2=INT32_MAX;
+   double z,zorg,z2=INT32_MAX;
 
    VeryLarge* VLSN = new VeryLarge(GAP, GAP->zub);
 
@@ -77,11 +78,13 @@ double MetaLocalSearch::GRASP(int maxIter, int candNum)
    int iter;
 
    iter = 0;
+   for(int j=0;j<n;j++) GAP->sol[j] = -1; // no need for a seed solution
+
    while(iter<maxIter)
-   {  z = GRASPcontruct(candNum);
+   {  z = GRASPcontruct(candNum,true);    // CHOICE WHETHER MATHEURISTC
       if(z < zub)
       {  GAP->storeBest(sol,z);
-         cout << "[GRASP]: New zub: " << zub;
+         cout << "[GRASP]: New zub: " << zub << " iter " << iter << endl;
       }
 
       if(z < INT_MAX)
@@ -89,13 +92,13 @@ double MetaLocalSearch::GRASP(int maxIter, int candNum)
          z = LS->opt10(GAP->c, true);
          if(z < zub)
          {  GAP->storeBest(sol,z);
-            cout << "[GRASP]: New zub: " << zub;
+            cout << "[GRASP]: New zub: " << zub << " iter " << iter << endl;
          }
       }
       //z = LS->opt11(GAP->c, true);
       //if(z < zub)
       //{  GAP->storeBest(sol,z);
-      //   cout << "[GRASP]: New zub: " << zub;
+      //   cout << "[GRASP]: New zub: " << zub << " iter " << iter << endl;;
       //}
       if(iter%200 == 0)
          cout << "[GRASP] iter "<< iter <<" z " << z << " zub "<< zub << endl;
@@ -105,15 +108,16 @@ double MetaLocalSearch::GRASP(int maxIter, int candNum)
 }
 
 // construction GRASP, with candidate list
-double MetaLocalSearch::GRASPcontruct(int candNum)
+double MetaLocalSearch::GRASPcontruct(int candNum, bool isMatheuristic)
 {  int i,ii,j,jj,m,n,icand;
-   double z;
+   double z,lb;
 
    m = GAP->m;
    n = GAP->n;
    z = 0;
-   vector<int> cost(m),capleft(m),indReq(m);
+   vector<int> capleft(m),indReq(m);
    vector<int> regrets(n),indRegr(n);
+   vector<double> cost(m);
    auto compCost = [&cost](int a, int b){ return cost[a] < cost[b]; };           // ASC order
    auto compRegr = [&regrets](int a, int b){ return regrets[a] > regrets[b]; };  // DESC order
 
@@ -122,28 +126,51 @@ double MetaLocalSearch::GRASPcontruct(int candNum)
       return INT_MAX;
    }
 
+   int** iterReq = new int*[m]; // requests for the partial solution
+   for(i = 0; i < m; ++i)
+      iterReq[i] = new int[n];
+
    for(i=0;i<m;i++) capleft[i] = GAP->cap[i];
    computeRegrets(GAP->c,n,m,regrets);
 
-   for(j=0;j<n;j++) indRegr[j] = j; // sort by decreasing regerets
+   for(j=0;j<n;j++) indRegr[j] = j; // sort clients by decreasing regrets
    std::sort(indRegr.begin(), indRegr.end(), compRegr);
 
    for(jj=0;jj<n;jj++)
-   {  j = indRegr[jj];              // client order by regrets
+   {  
+      for(j=0;j<n;j++)
+         if(GAP->sol[j] >=0)  // force sol[j] into the bound
+         {  for(i=0;i<m;i++)
+               if(i != GAP->sol[j])
+                  iterReq[i][j] = INT_MAX;
+         }
+         else
+            for(i=0;i<m;i++)
+               iterReq[i][j] = req[i][j];
+   
+      j = indRegr[jj];                // client order by regrets
       for(i=0;i<m;i++)
-      {  cost[i]= GAP->aversion(i,j);
-         indReq[i] = i;
+      {  indReq[i] = i;
+         if(isMatheuristic)
+         {  for(ii=0;ii<m;ii++)
+               if(ii != i)
+                  iterReq[ii][j] = INT_MAX;
+            cost[i] = LB->linearBound(GAP->req,n,m,iterReq,GAP->cap);
+            for(ii=0;ii<m;ii++)
+               iterReq[ii][j] = req[ii][j];
+         }
+         else
+            cost[i] = GAP->aversion(i,j); // aversion of client j for each server
       }
 
-      std::sort(indReq.begin(), indReq.end(), compCost);  // sort by increasing aversion
+      std::sort(indReq.begin(), indReq.end(), compCost);  // sort servers by increasing aversion
 
       icand=rand() % candNum;
       ii=0;
       while(ii<m)                   // going best to worse
       {  i=indReq[(ii+icand)%m];
-         if(capleft[i]>=GAP->req[i][j])
-         {  GAP->sol[j]=i;
-            GAP->solbest[j]=i;
+         if(capleft[i] >= GAP->req[i][j])
+         {  GAP->sol[j] = i;
             capleft[i] -= GAP->req[i][j];
             z += GAP->c[i][j];
             break;
@@ -151,11 +178,12 @@ double MetaLocalSearch::GRASPcontruct(int candNum)
          ii++;
       }
       if(ii==m)
-      {  //cout << "[GRASPConstruct] Unable to construct feasible. ii="+ii << endl;
+      {  //cout << "[GRASPConstruct] Unable to construct feasible sol. ii=" << ii << endl;
          z = INT_MAX;
          goto end;
       }
    }
+
    if(abs(GAP->checkSol(GAP->sol)-z) > GAP->EPS)
    {  cout << "[GRASPConstruct]: Error" << endl;
       z = INT_MAX;
@@ -165,10 +193,17 @@ double MetaLocalSearch::GRASPcontruct(int candNum)
    //   printIntArray(sol,n);
    //}
 
-   if(z < zub)
-   {  GAP->storeBest(sol,z);
-      cout << "[GRASPConstruct]: New zub: " << zub;
-   }
-end: return z;
+   //if(z < zub)
+   //{  GAP->storeBest(sol,z);
+   //   cout << "[GRASPConstruct]: New zub: " << zub << endl;
+   //}
+ 
+end: ;
+   // free
+   for(i = 0; i < m; ++i)
+      delete [] iterReq[i];
+   delete [] iterReq;
+
+   return z;
 }
 
