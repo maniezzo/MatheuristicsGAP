@@ -77,8 +77,12 @@ double MetaLocalSearch::GRASP(int maxIter, int candNum)
 {  double z;
    int iter;
 
+   if (GAP->n == NULL)
+   {  cout << "Instance undefined. Exiting" << endl;
+      return INT_MAX;
+   }
+
    iter = 0;
-   for(int j=0;j<n;j++) GAP->sol[j] = -1; // no need for a seed solution
 
    while(iter<maxIter)
    {  z = GRASPcontruct(candNum,true);    // CHOICE WHETHER MATHEURISTC
@@ -89,17 +93,17 @@ double MetaLocalSearch::GRASP(int maxIter, int candNum)
 
       if(z < INT_MAX)
       {
-         z = LS->opt10(GAP->c, true);
+         //z = LS->opt10(GAP->c, true);
+         //if(z < zub)
+         //{  GAP->storeBest(sol,z);
+         //   cout << "[GRASP]: opt10 new zub: " << zub << " iter " << iter << endl;
+         //}
+         z = LS->opt11(GAP->c, true);
          if(z < zub)
          {  GAP->storeBest(sol,z);
-            cout << "[GRASP]: New zub: " << zub << " iter " << iter << endl;
+            cout << "[GRASP]: opt11 new zub: " << zub << " iter " << iter << endl;
          }
       }
-      //z = LS->opt11(GAP->c, true);
-      //if(z < zub)
-      //{  GAP->storeBest(sol,z);
-      //   cout << "[GRASP]: New zub: " << zub << " iter " << iter << endl;;
-      //}
       if(iter%200 == 0)
          cout << "[GRASP] iter "<< iter <<" z " << z << " zub "<< zub << endl;
       iter++;
@@ -121,11 +125,6 @@ double MetaLocalSearch::GRASPcontruct(int candNum, bool isMatheuristic)
    auto compCost = [&cost](int a, int b){ return cost[a] < cost[b]; };           // ASC order
    auto compRegr = [&regrets](int a, int b){ return regrets[a] > regrets[b]; };  // DESC order
 
-   if(GAP->n == NULL)
-   {  cout << "Instance undefined. Exiting" << endl;
-      return INT_MAX;
-   }
-
    int** iterReq = new int*[m]; // requests for the partial solution
    for(i = 0; i < m; ++i)
       iterReq[i] = new int[n];
@@ -135,6 +134,8 @@ double MetaLocalSearch::GRASPcontruct(int candNum, bool isMatheuristic)
 
    for(j=0;j<n;j++) indRegr[j] = j; // sort clients by decreasing regrets
    std::sort(indRegr.begin(), indRegr.end(), compRegr);
+
+   for (int j = 0; j < n; j++) GAP->sol[j] = -1; // no need for a seed solution
 
    for(jj=0;jj<n;jj++)
    {  
