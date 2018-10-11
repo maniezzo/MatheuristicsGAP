@@ -7,8 +7,10 @@ Config::Config()
    TS = new Tabu();
    GA = new GeneticConf();
    EC = new EjectionConf();
-   IterLS  = new IteratedLS();
-   GRASP   = new GreedyRASP();
+   IterLS  = new ILSconf();
+   GRASP   = new GRASPconf();
+   VNS     = new VNSconf();
+   ACO     = new ACOconf();
    lagrAss = new LagrAss();
    lagrCap = new LagrCap();
    rinsConf= new RinsConf();

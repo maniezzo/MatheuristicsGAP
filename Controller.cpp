@@ -176,13 +176,25 @@ int Controller::run_tabuSearch()
 int Controller::run_genAlgo()
 {
    GA = new GenAlgo(GAP, GAP->zub);
-   int res = GA->genAlgo(  GAP->c,
-                           GAP->conf->GA->maxiter,
-                           GAP->conf->GA->numpop,
-                           GAP->conf->GA->pc
-                        );
-   if(GA != NULL) delete GA;
+   int res = GA->genAlgo(GAP->c,
+      GAP->conf->GA->maxiter,
+      GAP->conf->GA->numpop,
+      GAP->conf->GA->pc
+   );
+   if (GA != NULL) delete GA;
    GA = NULL;
+   return res;
+}
+
+// ant colony optimization (ANTS)
+int Controller::run_ACO()
+{
+   ANTS = new ACO(GAP, GAP->zub);
+   int res = ANTS->antColony(GAP->c,
+      GAP->conf->ACO->maxiter
+   );
+   if (ANTS != NULL) delete ANTS;
+   ANTS = NULL;
    return res;
 }
 
@@ -243,6 +255,27 @@ int Controller::run_GRASP()
    }
 }
 
+// GRASP
+int Controller::run_VNS()
+{
+   if (GAP->zub == INT_MAX)
+   {
+      cout << "Uninitialized solution" << endl;
+      return INT_MAX;
+   }
+   else
+   {
+      LS = new LocalSearch(GAP, GAP->zub);
+      MLS = new MetaLocalSearch(GAP, LS, GAP->zub);
+      MLS->VNS(GAP->conf->VNS->maxiter);
+      if (LS != NULL) delete LS;
+      LS = NULL;
+      if (MLS != NULL) delete MLS;
+      MLS = NULL;
+
+      return GAP->zub;
+   }
+}
 
 // lagrangean heuristic, feasible assignments, relax capacities
 int Controller::run_lagrAss()

@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\ACO.h" />
     <ClInclude Include="..\BeamSearch.h" />
     <ClInclude Include="..\Benders.h" />
     <ClInclude Include="..\Controller.h" />
@@ -185,6 +186,7 @@
     <ClInclude Include="..\VLSN.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\ACO.cpp" />
     <ClCompile Include="..\BeamSearch.cpp" />
     <ClCompile Include="..\Benders.cpp" />
     <ClCompile Include="..\Controller.cpp" />

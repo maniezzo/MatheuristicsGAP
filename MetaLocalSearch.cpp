@@ -208,3 +208,46 @@ end: ;
    return z;
 }
 
+double MetaLocalSearch::VNS(int maxIter)
+{
+   double z;
+   int iter;
+
+   if (GAP->n == NULL)
+   {
+      cout << "Instance undefined. Exiting" << endl;
+      return INT_MAX;
+   }
+
+   iter = 0;
+
+   while (iter < maxIter)
+   {
+      z = GRASPcontruct(2, true);    // CHOICE WHETHER MATHEURISTC
+      if (z < zub)
+      {
+         GAP->storeBest(sol, z);
+         cout << "[GRASP]: New zub: " << zub << " iter " << iter << endl;
+      }
+
+      if (z < INT_MAX)
+      {
+         //z = LS->opt10(GAP->c, true);
+         //if(z < zub)
+         //{  GAP->storeBest(sol,z);
+         //   cout << "[GRASP]: opt10 new zub: " << zub << " iter " << iter << endl;
+         //}
+         z = LS->opt11(GAP->c, true);
+         if (z < zub)
+         {
+            GAP->storeBest(sol, z);
+            cout << "[GRASP]: opt11 new zub: " << zub << " iter " << iter << endl;
+         }
+      }
+      if (iter % 200 == 0)
+         cout << "[GRASP] iter " << iter << " z " << z << " zub " << zub << endl;
+      iter++;
+   }
+   return zub;
+}
+

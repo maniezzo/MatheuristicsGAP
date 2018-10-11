@@ -23,6 +23,8 @@
    "GRASP":    { "maxiter" : 5000,
                  "candNum" : 2
                },
+   "VNS":      { "maxiter" : 5000
+               },
    "lagrAss" : { "alpha"     : 2.5,
                  "alphastep" : 0.97,
                  "minalpha"  : 0.001,

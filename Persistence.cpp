@@ -50,6 +50,9 @@ Config* Persistence::loadConfig()
    GAP->conf->GRASP->maxiter = jGRASP["maxiter"];
    GAP->conf->GRASP->candNum = jGRASP["candNum"];
 
+   json::Object jVNS = JSV["VNS"];
+   GAP->conf->VNS->maxiter = jVNS["maxiter"];
+
    json::Object jGA = JSV["GA"];
    GAP->conf->GA->maxiter = jGA["maxiter"];
    GAP->conf->GA->numpop = jGA["numpop"];

@@ -36,16 +36,21 @@ class Config
          int fGoMath;          // flag: use matheuristics
       };
 
-      class IteratedLS
+      class ILSconf
       {  public:
          int maxiter;
          double alpha;
       };
 
-      class GreedyRASP
+      class GRASPconf
       {  public:
          int maxiter;
          int candNum;
+      };
+
+      class VNSconf
+      {  public:
+         int maxiter;
       };
 
       class GeneticConf
@@ -53,6 +58,11 @@ class Config
          int maxiter;
          int numpop; // num individuals in population
          double pc;  // crossover probability
+      };
+
+      class ACOconf
+      {  public:
+         int maxiter;
       };
 
       class EjectionConf
@@ -125,8 +135,10 @@ class Config
       Tabu*         TS;
       GeneticConf*  GA;
       EjectionConf* EC;
-      IteratedLS*   IterLS;
-      GreedyRASP*   GRASP;
+      ILSconf*      IterLS;
+      GRASPconf*    GRASP;
+      VNSconf*      VNS;
+      ACOconf*      ACO;
       LagrAss*      lagrAss;
       LagrCap*      lagrCap;
       LocBranching* locBranching;

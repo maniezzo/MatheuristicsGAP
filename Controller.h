@@ -9,6 +9,7 @@
 #include "SimAnnealing.h"
 #include "TabuSearch.h"
 #include "GeneticAlgorithm.h"
+#include "ACO.h"
 #include "Ejection.h"
 #include "MetaLocalSearch.h"
 #include "Lagrangian.h"
@@ -33,6 +34,7 @@ class Controller
       SimAnnealing*     SA;            // Simulated Annealing (bare)
       TabuSearch*       TS;            // Tabu search
       GenAlgo*          GA;            // Genetic algorithm
+      ACO*              ANTS;          // ant colony optimization
       Ejection*         EC;            // Ejection chain
       MetaLocalSearch*  MLS;           // ILS, VND, VNS
       Lagrangian*       LAGR;          // lagrangian, assignment and capacities
@@ -57,7 +59,9 @@ class Controller
       int    run_tabuSearch();
       int    run_iteratedLS();
       int    run_GRASP();
+      int    run_VNS();
       int    run_genAlgo();
+      int    run_ACO();
       int    run_ejection();
       int    run_lagrAss();
       int    run_lagrCap();
