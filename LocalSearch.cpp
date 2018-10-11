@@ -109,7 +109,7 @@ l0:
    return z;
 }
 
-// un vicino 21 a caso, scambio due (stesso deposito) vs 1 (altro deposito)
+// a neighbor 21 at random, swap 2 (same depot) vs 1 (other depot)
 void LocalSearch::neigh21()
 {  int i,i1,i2,j,j11,j12,j21,iter;
    vector<int> lst1, lst2;
@@ -159,6 +159,7 @@ loop:
       if(iter < 50)
          goto loop;
    }
+   //if(iter<50) cout << "swap 21 ok" << endl;
 
    return;
 }

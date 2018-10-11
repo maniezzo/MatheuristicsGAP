@@ -208,46 +208,40 @@ end: ;
    return z;
 }
 
+// VNS, vicinanze 1-0 e 1-1
 double MetaLocalSearch::VNS(int maxIter)
 {
-   double z;
+   double z1, z2;
    int iter;
 
    if (GAP->n == NULL)
-   {
-      cout << "Instance undefined. Exiting" << endl;
+   {  cout << "Instance undefined. Exiting" << endl;
       return INT_MAX;
    }
 
    iter = 0;
-
    while (iter < maxIter)
    {
-      z = GRASPcontruct(2, true);    // CHOICE WHETHER MATHEURISTC
-      if (z < zub)
-      {
-         GAP->storeBest(sol, z);
-         cout << "[GRASP]: New zub: " << zub << " iter " << iter << endl;
+loop: z1 = LS->opt10(GAP->c, true);
+      if (z1 < zub)
+      {  GAP->storeBest(sol, z1);
+         cout << "[VNS]: New zub: " << zub << " iter " << iter << endl;
       }
-
-      if (z < INT_MAX)
-      {
-         //z = LS->opt10(GAP->c, true);
-         //if(z < zub)
-         //{  GAP->storeBest(sol,z);
-         //   cout << "[GRASP]: opt10 new zub: " << zub << " iter " << iter << endl;
-         //}
-         z = LS->opt11(GAP->c, true);
-         if (z < zub)
-         {
-            GAP->storeBest(sol, z);
-            cout << "[GRASP]: opt11 new zub: " << zub << " iter " << iter << endl;
-         }
+      z2 = LS->opt11(GAP->c, true);
+      if (z2 < zub)
+      {  GAP->storeBest(sol, z2);
+         cout << "[VNS]: New zub: " << zub << " iter " << iter << endl;
       }
-      if (iter % 200 == 0)
-         cout << "[GRASP] iter " << iter << " z " << z << " zub " << zub << endl;
-      iter++;
+      if (z2 < z1)
+         goto loop;
+      else
+      {
+         LS->neigh21();
+         iter++;
+      }
+      if(iter%100 == 0) cout << "[VNS] iter " << iter << " zub " << zub << endl;
    }
+
    return zub;
 }
 
