@@ -117,6 +117,7 @@ start:
 
 lend:
    cout << "TS zub= " << zub << endl;
+   printIntArray(sol, n);
    if (RINS != NULL) delete RINS;
    RINS = NULL;
    return z;
