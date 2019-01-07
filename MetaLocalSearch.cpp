@@ -1,8 +1,7 @@
 ﻿#include "MetaLocalSearch.h"
 
 MetaLocalSearch::MetaLocalSearch(GeneralizedAssignemnt* GAPinstance, LocalSearch* LSearch, int & zz) : zub(zz)
-{
-   //ctor
+{  //ctor
    GAP = GAPinstance;
    LS  = LSearch;
    LB = new LowerBound(GAP,zub);
@@ -15,8 +14,7 @@ MetaLocalSearch::MetaLocalSearch(GeneralizedAssignemnt* GAPinstance, LocalSearch
 }
 
 MetaLocalSearch::~MetaLocalSearch()
-{
-   delete LB;
+{  delete LB;
 }
 
 int MetaLocalSearch::iteratedLocSearch(int** c, int maxIter, double alpha)
@@ -235,8 +233,7 @@ loop: z1 = LS->opt10(GAP->c, true);
       if (z2 < z1)
          goto loop;
       else
-      {
-         LS->neigh21();
+      {  LS->neigh21();
          iter++;
       }
       if(iter%100 == 0) cout << "[VNS] iter " << iter << " zub " << zub << endl;
