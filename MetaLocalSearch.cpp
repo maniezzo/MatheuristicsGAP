@@ -218,6 +218,9 @@ double MetaLocalSearch::VNS(int maxIter, bool isMatheuristic)
    {  cout << "Instance undefined. Exiting" << endl;
       return INT_MAX;
    }
+   
+   // linear bound
+   z1 = LB->linearBound(GAP->c, n, m, GAP->req, GAP->cap);
 
    iter = 0;
    while (iter < maxIter)
