@@ -15,12 +15,14 @@ class MetaLocalSearch
       int iteratedLocSearch(int**,int,double);
       double MetaLocalSearch::GRASP(int maxIter, int candNum);
       double MetaLocalSearch::VNS(int maxIter, bool isMatheuristic);
+      double MetaLocalSearch::VNSbasic(int maxIter);
 
    private:
       LocalSearch* LS;
       LowerBound*  LB;
-      void dataPerturbation(int**,int**,double);
+      void   dataPerturbation(int**,int**,double);
       double MetaLocalSearch::GRASPcontruct(int candNum, bool isMatheuristic);
+      void   MetaLocalSearch::fixVariables(MIPCplex* CPX, vector<int> fixVal);
 
       // local mirrors
       int   m,n;

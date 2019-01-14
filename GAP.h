@@ -177,6 +177,7 @@ class GeneralizedAssignemnt
       double EPS;
 
       int checkSol(int* sol);                       // feasibility check
+      int checkSol(vector<int> sol);                // feasibility check
       int fixSol(int* infeasSol, int* zsol);        // recovers feasibility in case of partial or overassigned solution
       int fixSolViaKnap(int* infeasSol, int* zsol); // recovers feasibility via knapsacks on residual capacities
       int aversion(int i,int j);

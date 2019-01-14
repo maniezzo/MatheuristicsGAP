@@ -109,6 +109,34 @@ double LowerBound::linearBound(int** c, int n, int m, int** req, int* cap)
    return lb;
 }
 
+vector<double> LowerBound::linearBound(int** c, int n, int m, int** req, int* cap, double* lb)
+{
+   vector<double> x(n*m,0);
+   int numRows, numCols, numNZrow;
+   int i,j;
+   bool isVerbose = false;
+   numRows = n + m;   // num of constraints
+   numCols = n * m;   // num of variables
+   numNZrow = n * m;   // max num of nonzero values in a row
+   CPX = new MIPCplex(numRows, numCols, numNZrow);
+   CPX->GAP = GAP;
+   CPX->allocateMIP(c, n, m, req, cap, isVerbose);    // linear bound, verbose output
+   int statusMIP = CPX->solveMIP(false, false);
+   if (statusMIP == 0)
+   {
+      *lb = CPX->objval;
+      for (i = 0; i < m; ++i)
+         for (j = 0; j < n; ++j)
+            x[i*n + j] = CPX->x[i*n + j];
+   }
+   else
+      *lb = DBL_MAX;
+   CPX->freeMIP();
+
+   delete CPX;
+   return x;
+}
+
 double LowerBound::lagrangianDecomposition(int** c, double alpha, double alphastep, double minAlpha, int innerIter, int maxiter)
 {  int     i,j,iter=0,zcurr;
    double  zlb,step=0,zlbBest=0,fakeZub,sumSubGrad2;

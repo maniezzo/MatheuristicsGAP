@@ -120,7 +120,7 @@ int Controller::opt10()
       z = INT_MAX;
    }
 
-   z = LS->opt11(GAP->c,true);
+   z = (int) LS->opt11(GAP->c,true);
    zcheck = GAP->checkSol(GAP->sol);
    if (abs(zcheck - z) > GAP->EPS)
    {

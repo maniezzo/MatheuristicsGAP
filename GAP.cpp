@@ -69,7 +69,36 @@ int GeneralizedAssignemnt::checkSol(int* sol)
       }
    }
    delete capused;
-lend:    
+   lend:    
+   return cost;
+}
+
+// controllo ammissibilità soluzione
+int GeneralizedAssignemnt::checkSol(vector<int> sol)
+{  int cost=0;
+   int i,j;
+   int* capused = new int[m];
+   for(i=0;i<m;i++) capused[i] = 0;
+
+   // controllo assegnamenti
+   for(j=0;j<n;j++)
+      if(sol[j]<0 || sol[j]>=m)
+      {  cost = INT_MAX;
+         goto lend;
+      }
+      else
+         cost += c[sol[j]][j];
+
+   // controllo capacità
+   for(j=0;j<n;j++)
+   {  capused[sol[j]] += req[sol[j]][j];
+      if(capused[sol[j]] > cap[sol[j]])
+      {  cost = INT_MAX;
+         goto lend;
+      }
+   }
+   delete capused;
+   lend:    
    return cost;
 }
 

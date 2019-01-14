@@ -15,6 +15,7 @@ class LowerBound
       double trivialBound();
       double linearBound();
       double linearBound(int** c, int n, int m, int** req, int* cap);
+      vector<double> linearBound(int** c, int n, int m, int** req, int* cap, double* lb);
       double lagrangianDecomposition(int** c, double alpha, double alphastep, double minAlpha, int innerIter, int maxiter);
       double benders();
 

@@ -209,18 +209,9 @@ end: ;
 }
 
 // VNS, vicinanze 1-0 e 1-1
-double MetaLocalSearch::VNS(int maxIter, bool isMatheuristic)
-{
-   double z1, z2;
+double MetaLocalSearch::VNSbasic(int maxIter)
+{  double z1, z2;
    int iter;
-
-   if (GAP->n == NULL)
-   {  cout << "Instance undefined. Exiting" << endl;
-      return INT_MAX;
-   }
-   
-   // linear bound
-   z1 = LB->linearBound(GAP->c, n, m, GAP->req, GAP->cap);
 
    iter = 0;
    while (iter < maxIter)
@@ -247,3 +238,189 @@ loop: z1 = LS->opt10(GAP->c, true);
    return zub;
 }
 
+double MetaLocalSearch::VNS(int maxIter, bool isMatheuristic)
+{
+   double z1, z2, lb, zubIter;
+   vector<double> x,delta(n*m,0);
+   vector<int> indDelta(n*m,0), fixVal, solIter(n);
+   int i,j,iter,nd,k;
+   auto compDelta = [&delta](double a, double b){ return delta[a] < delta[b]; };  // ASC order
+
+   if (GAP->n == NULL)
+   {  cout << "Instance undefined. Exiting" << endl;
+      return INT_MAX;
+   }
+
+   if (!isMatheuristic)    // plain algo, not a matheuristic
+   {  VNSbasic(maxIter);
+      goto end;
+   }
+   
+   // linear bound
+   x = LB->linearBound(GAP->c, n, m, GAP->req, GAP->cap, &lb);
+   z1 = 0;
+   for (i = 0; i < m; i++)
+      for (j = 0; j < n; j++)
+         z1 += (GAP->c[i][j] * x[i*n + j]);
+
+   // this will be needed for solving MIP to optimality
+   int numRows, numCols, numNZrow;
+   numRows  = n + m;   // num of constraints
+   numCols  = n * m;   // num of variables
+   numNZrow = n * m;   // max num of nonzero values in a row
+   MIPCplex* CPX = new MIPCplex(numRows, numCols, numNZrow);
+   CPX->GAP = GAP;
+   CPX->allocateMIP(false);
+
+   iter = 0;
+   while (iter < maxIter)
+   {
+      k = n/2;    // I cut it short, should be more refined
+      nd = 0;
+      for (i = 0; i < m; i++)
+         for (j = 0; j < n; j++)
+         {  indDelta[i*n+j] = i*n+j;
+            delta[i*n + j] = (sol[j] == i ? 1 : 0) - x[i*n + j];
+            if(abs(delta[i*n + j]-0) > GAP->EPS) nd++;
+         }
+      // sort indices by increasing deltas
+      std::sort(indDelta.begin(), indDelta.end(), compDelta);
+
+      fixVariables(CPX, fixVal); // defines the set of free variables
+      try
+      {
+         status = CPX->solveMIP(true, false); // integer solution, only ejection set variables are free
+         if (!status)
+         {
+            // reads the solution
+            zubIter = 0;
+            for (j = 0; j<n; j++)
+            {
+               for (i = 0; i<m; i++)
+                  if (CPX->x[i*n + j] > 0.5)
+                  {  solIter[j] = i;
+                     break;
+                  }
+               zubIter += GAP->c[solIter[j]][j];
+            }
+
+            if (abs(zubIter - GAP->checkSol(solIter)) > GAP->EPS)
+               cout << "[VNS-MIP] No feasible solution at this iteration" << endl;
+            else
+            {
+               cout << "[VNS-MIP] iter " << iter << " zubIter " << zubIter << endl;
+               cout << "Solution: "; for (j = 0; j<n; j++) cout << solIter[j] << " "; cout << endl;
+
+               if (zubIter < zub)
+               {
+                  zub = zubIter;
+                  for (i = 0; i<n; i++) solbest[i] = solIter[i];
+                  cout << "[VLSN] ************** new zub. iter " << iter << " zubIter " << zubIter << endl;
+               }
+            }
+         }
+      }
+      catch (std::exception const& e)
+      {
+         cout << "Error: " << e.what() << endl;
+         goto cend;
+      }
+
+loop: z1 = LS->opt10(GAP->c, true);
+      if (z1 < zub)
+      {  GAP->storeBest(sol, z1);
+         cout << "[VNS]: New zub: " << zub << " iter " << iter << endl;
+      }
+      z2 = LS->opt11(GAP->c, true);
+      if (z2 < zub)
+      {  GAP->storeBest(sol, z2);
+         cout << "[VNS]: New zub: " << zub << " iter " << iter << endl;
+      }
+      if (z2 < z1)
+         goto loop;
+      else
+      {  LS->neigh21();
+         iter++;
+      }
+      if(iter%100 == 0) cout << "[VNS] iter " << iter << " zub " << zub << endl;
+   }
+
+cend:
+   // release cplex objects
+   CPX->freeMIP();
+   delete(CPX);
+
+end: return zub;
+}
+
+
+// this frees the  variables in the ejection set
+void MetaLocalSearch::fixVariables(MIPCplex* CPX, vector<int> fixVal)
+{
+   int i, j, isol, status, numfix, temp;
+   bool isInSet;
+   double minr;
+   vector<int> lstClients;
+   vector<int> lstSet;
+
+   numfix = n - min(k, n);      // numfix is the number of clients to fix
+
+   int  cnt = n * m;
+   int* indices = new int[cnt];  // indices of the columns corresponding to the variables for which bounds are to be changed
+   char* lu = new char[cnt];     // whether the corresponding entry in the array bd specifies the lower or upper bound on column indices[j]
+   double* bd = new double[cnt]; // new values of the lower or upper bounds of the variables present in indices
+
+   for (j = 0; j<n; j++)
+   {
+      // is the client in the binding set?
+      isInSet = false;
+      if (std::find(lstSet.begin(), lstSet.end(), j) != lstSet.end())
+      {
+         isInSet = true;
+         cout << j << " ";
+      }
+
+      for (i = 0; i<m; i++)
+      {
+         if (!isInSet)              // set it free
+         {
+            if (CPX->lb[i*n + j] == 0.0)  // lb OK, only ub could be wrong
+            {
+               CPX->ub[i*n + j] = 1.0;
+               bd[i*n + j] = 1.0;
+               lu[i*n + j] = 'U';        // bd[j] is an upper bound
+            }
+            else                       // lb wrong, ub should be OK
+            {
+               CPX->lb[i*n + j] = 0.0;
+               bd[i*n + j] = 0.0;
+               lu[i*n + j] = 'L';        // bd[j] is an upper bound
+            }
+         }
+         else                          // not in set
+         {
+            isol = solIter[j];
+            if (i == isol)
+            {
+               CPX->lb[i*n + j] = 1.0;   // fixing in the solution
+               bd[i*n + j] = 1.0;
+            }
+            else
+            {
+               CPX->lb[i*n + j] = 0.0;   // forbidding in the solution
+               bd[i*n + j] = 0.0;
+            }
+            lu[i*n + j] = 'B';           // bd[j] is the lower and upper bound
+         }
+         indices[i*n + j] = i * n + j;
+      }
+   }
+   cout << endl;
+
+   status = CPXchgbds(CPX->env, CPX->lp, cnt, indices, lu, bd);
+   free(indices);
+   free(lu);
+   free(bd);
+
+   return;
+}
