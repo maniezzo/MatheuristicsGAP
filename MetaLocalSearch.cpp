@@ -242,8 +242,8 @@ double MetaLocalSearch::VNS(int maxIter, bool isMatheuristic)
 {
    double z1, z2, lb, zubIter;
    vector<double> x,delta(n*m,0);
-   vector<int> indDelta(n*m,0), fixVal, solIter(n);
-   int i,j,iter,nd,k;
+   vector<int> indDelta(n*m,0), fixVal(n*m), solIter(n);
+   int i,j,iter,nd,k,status;
    auto compDelta = [&delta](double a, double b){ return delta[a] < delta[b]; };  // ASC order
 
    if (GAP->n == NULL)
@@ -282,9 +282,20 @@ double MetaLocalSearch::VNS(int maxIter, bool isMatheuristic)
          {  indDelta[i*n+j] = i*n+j;
             delta[i*n + j] = (sol[j] == i ? 1 : 0) - x[i*n + j];
             if(abs(delta[i*n + j]-0) > GAP->EPS) nd++;
+            fixVal[i*n+j] = INT_MAX;
          }
       // sort indices by increasing deltas
       std::sort(indDelta.begin(), indDelta.end(), compDelta);
+
+      int ind,count = 0;
+      for (i=0;i<m;i++)
+         for (j = 0; j < n; j++)
+         {  ind = i*n+j;
+            if(delta[indDelta[ind]] != 0 && count < k)
+            {  fixVal[indDelta[ind]] = (sol[j] == i ? 1 : 0);
+               count++;
+            }
+         }
 
       fixVariables(CPX, fixVal); // defines the set of free variables
       try
@@ -353,72 +364,48 @@ cend:
 end: return zub;
 }
 
-
-// this frees the  variables in the ejection set
+// this frees and fixes variables 
 void MetaLocalSearch::fixVariables(MIPCplex* CPX, vector<int> fixVal)
 {
-   int i, j, isol, status, numfix, temp;
-   bool isInSet;
-   double minr;
-   vector<int> lstClients;
-   vector<int> lstSet;
+   int k, status, numfix;
 
-   numfix = n - min(k, n);      // numfix is the number of clients to fix
+   numfix = 0;      // numfix is the number of clients to fix
+   for(k=0;k<fixVal.size();k++)
+      if(fixVal[k] != INT_MAX) // if NAN, variable is free
+         numfix++;
 
    int  cnt = n * m;
    int* indices = new int[cnt];  // indices of the columns corresponding to the variables for which bounds are to be changed
    char* lu = new char[cnt];     // whether the corresponding entry in the array bd specifies the lower or upper bound on column indices[j]
    double* bd = new double[cnt]; // new values of the lower or upper bounds of the variables present in indices
 
-   for (j = 0; j<n; j++)
+   for (k = 0; k<cnt; k++)
    {
-      // is the client in the binding set?
-      isInSet = false;
-      if (std::find(lstSet.begin(), lstSet.end(), j) != lstSet.end())
+      if (fixVal[k]==INT_MAX)           // set it free
       {
-         isInSet = true;
-         cout << j << " ";
+         if (CPX->lb[k] == 0.0)     // lb OK, only ub could be wrong
+         {  CPX->ub[k] = 1.0;
+            bd[k] = 1.0;
+            lu[k] = 'U';            // bd[j] is an upper bound
+         }
+         else                       // lb wrong, ub should be OK
+         {  CPX->lb[k] = 0.0;
+            bd[k] = 0.0;
+            lu[k] = 'L';            // bd[j] is an upper bound
+         }
       }
-
-      for (i = 0; i<m; i++)
+      else                          // fix the var
       {
-         if (!isInSet)              // set it free
-         {
-            if (CPX->lb[i*n + j] == 0.0)  // lb OK, only ub could be wrong
-            {
-               CPX->ub[i*n + j] = 1.0;
-               bd[i*n + j] = 1.0;
-               lu[i*n + j] = 'U';        // bd[j] is an upper bound
-            }
-            else                       // lb wrong, ub should be OK
-            {
-               CPX->lb[i*n + j] = 0.0;
-               bd[i*n + j] = 0.0;
-               lu[i*n + j] = 'L';        // bd[j] is an upper bound
-            }
-         }
-         else                          // not in set
-         {
-            isol = solIter[j];
-            if (i == isol)
-            {
-               CPX->lb[i*n + j] = 1.0;   // fixing in the solution
-               bd[i*n + j] = 1.0;
-            }
-            else
-            {
-               CPX->lb[i*n + j] = 0.0;   // forbidding in the solution
-               bd[i*n + j] = 0.0;
-            }
-            lu[i*n + j] = 'B';           // bd[j] is the lower and upper bound
-         }
-         indices[i*n + j] = i * n + j;
+         CPX->lb[k] = fixVal[k];    // fixing in the solution
+         bd[k] = fixVal[k];
+         lu[k] = 'B';               // bd[k] is the lower and upper bound
       }
+      indices[k] = k;
    }
-   cout << endl;
 
+   // change bounds in the model
    status = CPXchgbds(CPX->env, CPX->lp, cnt, indices, lu, bd);
-   free(indices);
+   delete(indices);
    free(lu);
    free(bd);
 
