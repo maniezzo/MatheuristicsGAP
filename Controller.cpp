@@ -267,7 +267,7 @@ int Controller::run_VNS()
    {
       LS = new LocalSearch(GAP, GAP->zub);
       MLS = new MetaLocalSearch(GAP, LS, GAP->zub);
-      MLS->VNS(GAP->conf->VNS->maxiter);
+      MLS->VNS(GAP->conf->VNS->maxiter, GAP->conf->VNS->fGoMath);
       if (LS != NULL) delete LS;
       LS = NULL;
       if (MLS != NULL) delete MLS;

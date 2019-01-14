@@ -14,7 +14,7 @@ class MetaLocalSearch
       ~MetaLocalSearch();
       int iteratedLocSearch(int**,int,double);
       double MetaLocalSearch::GRASP(int maxIter, int candNum);
-      double MetaLocalSearch::VNS(int maxIter);
+      double MetaLocalSearch::VNS(int maxIter, bool isMatheuristic);
 
    private:
       LocalSearch* LS;

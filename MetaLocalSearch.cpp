@@ -1,4 +1,6 @@
 ﻿#include "MetaLocalSearch.h"
+#include "MIPCplex.h"      // per lineare in VNS
+#include <ilcplex/cplex.h> // per lineare in VNS
 
 MetaLocalSearch::MetaLocalSearch(GeneralizedAssignemnt* GAPinstance, LocalSearch* LSearch, int & zz) : zub(zz)
 {  //ctor
@@ -207,7 +209,7 @@ end: ;
 }
 
 // VNS, vicinanze 1-0 e 1-1
-double MetaLocalSearch::VNS(int maxIter)
+double MetaLocalSearch::VNS(int maxIter, bool isMatheuristic)
 {
    double z1, z2;
    int iter;

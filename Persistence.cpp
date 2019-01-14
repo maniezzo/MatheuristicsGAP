@@ -52,6 +52,7 @@ Config* Persistence::loadConfig()
 
    json::Object jVNS = JSV["VNS"];
    GAP->conf->VNS->maxiter = jVNS["maxiter"];
+   GAP->conf->VNS->fGoMath = jVNS["fGoMath"];
 
    json::Object jGA = JSV["GA"];
    GAP->conf->GA->maxiter = jGA["maxiter"];

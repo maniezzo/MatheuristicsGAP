@@ -51,6 +51,7 @@ class Config
       class VNSconf
       {  public:
          int maxiter;
+         int fGoMath;          // flag: use matheuristics
       };
 
       class GeneticConf
