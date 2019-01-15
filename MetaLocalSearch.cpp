@@ -114,7 +114,7 @@ double MetaLocalSearch::GRASP(int maxIter, int candNum)
 // construction GRASP, with candidate list
 double MetaLocalSearch::GRASPcontruct(int candNum, bool isMatheuristic)
 {  int i,ii,j,jj,m,n,icand;
-   double z,lb;
+   double z;
 
    m = GAP->m;
    n = GAP->n;
@@ -244,7 +244,7 @@ double MetaLocalSearch::VNS(int maxIter, bool isMatheuristic)
    vector<double> x,delta(n*m,0);
    vector<int> indDelta(n*m,0), fixVal(n*m), solIter(n);
    int i,j,iter,nd,k,status;
-   auto compDelta = [&delta](double a, double b){ return delta[a] < delta[b]; };  // ASC order
+   auto compDelta = [&delta](int a, int b){ return delta[a] < delta[b]; };  // ASC order
 
    if (GAP->n == NULL)
    {  cout << "Instance undefined. Exiting" << endl;
@@ -275,29 +275,30 @@ double MetaLocalSearch::VNS(int maxIter, bool isMatheuristic)
    iter = 0;
    while (iter < maxIter)
    {
-      k = n/2;    // I cut it short, should be more refined
+      k = (int) floor(0.5*n);    // I cut it short, should be more refined
       nd = 0;
       for (i = 0; i < m; i++)
          for (j = 0; j < n; j++)
          {  indDelta[i*n+j] = i*n+j;
-            delta[i*n + j] = (sol[j] == i ? 1 : 0) - x[i*n + j];
+            delta[i*n + j] = abs( (sol[j] == i ? 1 : 0) - x[i*n + j] ); // not using abs here is better for the GAP
             if(abs(delta[i*n + j]-0) > GAP->EPS) nd++;
             fixVal[i*n+j] = INT_MAX;
          }
-      // sort indices by increasing deltas
+      // sort indices by *increasing* deltas
       std::sort(indDelta.begin(), indDelta.end(), compDelta);
 
       int ind,count = 0;
-      for (i=0;i<m;i++)
-         for (j = 0; j < n; j++)
-         {  ind = i*n+j;
-            if(delta[indDelta[ind]] != 0 && count < k)
-            {  fixVal[indDelta[ind]] = (sol[j] == i ? 1 : 0);
-               count++;
-            }
+      for (ind=0;ind<numCols;ind++)
+      {  i=indDelta[ind]/n;
+         j=indDelta[ind]%n;
+         if(count < k)
+         {  fixVal[indDelta[ind]] = (sol[j] == i ? 1 : 0);
+            cout << "fixing "<< indDelta[ind] << " to " << sol[j] << endl;
+            count++;
          }
+      }
 
-      fixVariables(CPX, fixVal); // defines the set of free variables
+      CPX->fixVariables(CPX, fixVal); // defines the set of free variables
       try
       {
          status = CPX->solveMIP(true, false); // integer solution, only ejection set variables are free
@@ -309,7 +310,7 @@ double MetaLocalSearch::VNS(int maxIter, bool isMatheuristic)
             {
                for (i = 0; i<m; i++)
                   if (CPX->x[i*n + j] > 0.5)
-                  {  solIter[j] = i;
+                  {  solIter[j] = GAP->sol[j] = i;
                      break;
                   }
                zubIter += GAP->c[solIter[j]][j];
@@ -324,9 +325,9 @@ double MetaLocalSearch::VNS(int maxIter, bool isMatheuristic)
 
                if (zubIter < zub)
                {
-                  zub = zubIter;
+                  zub = (int) zubIter;
                   for (i = 0; i<n; i++) solbest[i] = solIter[i];
-                  cout << "[VLSN] ************** new zub. iter " << iter << " zubIter " << zubIter << endl;
+                  cout << "[VNS-MIP] ************** new zub. iter " << iter << " zubIter " << zubIter << endl;
                }
             }
          }
@@ -340,12 +341,12 @@ double MetaLocalSearch::VNS(int maxIter, bool isMatheuristic)
 loop: z1 = LS->opt10(GAP->c, true);
       if (z1 < zub)
       {  GAP->storeBest(sol, z1);
-         cout << "[VNS]: New zub: " << zub << " iter " << iter << endl;
+         cout << "[VNS-MIP]: New zub: " << zub << " iter " << iter << endl;
       }
       z2 = LS->opt11(GAP->c, true);
       if (z2 < zub)
       {  GAP->storeBest(sol, z2);
-         cout << "[VNS]: New zub: " << zub << " iter " << iter << endl;
+         cout << "[VNS-MIP]: New zub: " << zub << " iter " << iter << endl;
       }
       if (z2 < z1)
          goto loop;
@@ -353,7 +354,7 @@ loop: z1 = LS->opt10(GAP->c, true);
       {  LS->neigh21();
          iter++;
       }
-      if(iter%100 == 0) cout << "[VNS] iter " << iter << " zub " << zub << endl;
+      if(iter%100 == 0) cout << "[VNS-MIP] iter " << iter << " zub " << zub << endl;
    }
 
 cend:
@@ -364,50 +365,3 @@ cend:
 end: return zub;
 }
 
-// this frees and fixes variables 
-void MetaLocalSearch::fixVariables(MIPCplex* CPX, vector<int> fixVal)
-{
-   int k, status, numfix;
-
-   numfix = 0;      // numfix is the number of clients to fix
-   for(k=0;k<fixVal.size();k++)
-      if(fixVal[k] != INT_MAX) // if NAN, variable is free
-         numfix++;
-
-   int  cnt = n * m;
-   int* indices = new int[cnt];  // indices of the columns corresponding to the variables for which bounds are to be changed
-   char* lu = new char[cnt];     // whether the corresponding entry in the array bd specifies the lower or upper bound on column indices[j]
-   double* bd = new double[cnt]; // new values of the lower or upper bounds of the variables present in indices
-
-   for (k = 0; k<cnt; k++)
-   {
-      if (fixVal[k]==INT_MAX)           // set it free
-      {
-         if (CPX->lb[k] == 0.0)     // lb OK, only ub could be wrong
-         {  CPX->ub[k] = 1.0;
-            bd[k] = 1.0;
-            lu[k] = 'U';            // bd[j] is an upper bound
-         }
-         else                       // lb wrong, ub should be OK
-         {  CPX->lb[k] = 0.0;
-            bd[k] = 0.0;
-            lu[k] = 'L';            // bd[j] is an upper bound
-         }
-      }
-      else                          // fix the var
-      {
-         CPX->lb[k] = fixVal[k];    // fixing in the solution
-         bd[k] = fixVal[k];
-         lu[k] = 'B';               // bd[k] is the lower and upper bound
-      }
-      indices[k] = k;
-   }
-
-   // change bounds in the model
-   status = CPXchgbds(CPX->env, CPX->lp, cnt, indices, lu, bd);
-   delete(indices);
-   free(lu);
-   free(bd);
-
-   return;
-}

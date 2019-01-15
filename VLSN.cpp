@@ -115,7 +115,7 @@ void VeryLarge::fixVariables(int** c, MIPCplex* CPX, int* solIter, int k)
    vector<int> lstSet;
    vector<int> indRatios(n);
    vector<double> ratios;  // to be used for client ordering
-   auto compRatios = [&ratios](double a, double b) { return ratios[a] < ratios[b]; };    // ASC order
+   auto compRatios = [&ratios](int a, int b) { return ratios[a] < ratios[b]; };    // ASC order
 
    for (j = 0; j<n; j++)
       lstClients.push_back(j);

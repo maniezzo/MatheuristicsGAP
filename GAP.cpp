@@ -270,10 +270,10 @@ int GeneralizedAssignemnt::aversion(int i, int j)
          res = c[i][j] - first;
       break;
    case 4:     // resource unit cost
-      res = (100.0 * c[i][j]) / req[i][j];
+      res = (int) floor( (100.0 * c[i][j]) / req[i][j] );
       break;
    case 5:     // percentage server occupation
-      res = (100.0 * req[i][j])/cap[i];
+      res = (int) floor( (100.0 * req[i][j])/cap[i] );
       break;
    default:
          cout << "Aversion function badly specified" << endl;
@@ -285,7 +285,7 @@ int GeneralizedAssignemnt::aversion(int i, int j)
 
 // stores best so far solution
 void GeneralizedAssignemnt::storeBest(int* sol, double z)
-{  zub = z;
+{  zub = (int) z;
    for(int j=0;j<n;j++) solbest[j] = sol[j];
 }
 

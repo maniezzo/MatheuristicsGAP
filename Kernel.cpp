@@ -255,7 +255,6 @@ int Kernel::genCol(MIPCplex* CPX, vector<double> d)
       }
    }
 
-lend:
    if (q != NULL)    delete(q);    q = NULL;
    if (val != NULL)  delete(val);  val = NULL;
    if (Ksol != NULL) delete(Ksol); Ksol = NULL;

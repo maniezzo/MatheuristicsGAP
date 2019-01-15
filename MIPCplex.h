@@ -52,6 +52,7 @@ class MIPCplex
       int allocateDual(int, int, vector<int> xbar, bool isVerbose);
       int freeMIP();
       int solveMIP(bool fMIPint, bool fVerbose);
+      void fixVariables(MIPCplex* CPX, vector<int> fixVal);
       CPXENVptr env;
       CPXLPptr  lp;
 

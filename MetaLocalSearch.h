@@ -22,7 +22,6 @@ class MetaLocalSearch
       LowerBound*  LB;
       void   dataPerturbation(int**,int**,double);
       double MetaLocalSearch::GRASPcontruct(int candNum, bool isMatheuristic);
-      void   MetaLocalSearch::fixVariables(MIPCplex* CPX, vector<int> fixVal);
 
       // local mirrors
       int   m,n;

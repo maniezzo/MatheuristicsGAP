@@ -726,3 +726,51 @@ int MIPCplex::freeMIP()
       cout << "CPLEX released" << endl;
    return (status);
 }
+
+// this frees and fixes variables 
+void MIPCplex::fixVariables(MIPCplex* CPX, vector<int> fixVal)
+{
+   int k, status, numfix;
+
+   numfix = 0;      // numfix is the number of clients to fix
+   for(k=0;k<fixVal.size();k++)
+      if(fixVal[k] != INT_MAX) // if NAN, variable is free
+         numfix++;
+
+   int  cnt = GAP->n * GAP->m;
+   int* indices = new int[cnt];  // indices of the columns corresponding to the variables for which bounds are to be changed
+   char* lu = new char[cnt];     // whether the corresponding entry in the array bd specifies the lower or upper bound on column indices[j]
+   double* bd = new double[cnt]; // new values of the lower or upper bounds of the variables present in indices
+
+   for (k = 0; k<cnt; k++)
+   {
+      if (fixVal[k]==INT_MAX)           // set it free
+      {
+         if (CPX->lb[k] == 0.0)     // lb OK, only ub could be wrong
+         {  CPX->ub[k] = 1.0;
+         bd[k] = 1.0;
+         lu[k] = 'U';            // bd[j] is an upper bound
+         }
+         else                       // lb wrong, ub should be OK
+         {  CPX->lb[k] = 0.0;
+         bd[k] = 0.0;
+         lu[k] = 'L';            // bd[j] is an upper bound
+         }
+      }
+      else                          // fix the var
+      {
+         CPX->lb[k] = fixVal[k];    // fixing in the solution
+         bd[k] = fixVal[k];
+         lu[k] = 'B';               // bd[k] is the lower and upper bound
+      }
+      indices[k] = k;
+   }
+
+   // change bounds in the model
+   status = CPXchgbds(CPX->env, CPX->lp, cnt, indices, lu, bd);
+   delete(indices);
+   free(lu);
+   free(bd);
+
+   return;
+}

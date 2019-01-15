@@ -27,7 +27,7 @@ z(S')=min {z(S^), foreach S^\in N(S), S^\notin TL}.
 // This is based on opt11
 int TabuSearch::tabuSearch(int** c, int Ttenure, int maxiter, int fGoMath)
 {  int z=0,delta,DeltaMax,cap1,cap2;
-   int i,j,i1,i2,isol,j1,j2, i1max, j1max, i2max, j2max,iter,temp;
+   int i,j,i1,i2,j1,j2, i1max, j1max, i2max, j2max,iter;
    vector<int> capleft(m);
    vector<vector<int>> TL(m, vector<int>(n,0));   // m*n 2d vector initialized with 0
    double zcheck;

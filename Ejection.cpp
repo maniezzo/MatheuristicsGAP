@@ -18,7 +18,6 @@ Ejection::~Ejection()
 
 int Ejection::ejectionChain(int** c, int maxiter)
 {  int z=0;
-   int iter;
    double* x = new double[n*m];  // an LP solution
    int* sol;
 
