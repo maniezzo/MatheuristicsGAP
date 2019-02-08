@@ -88,6 +88,8 @@ void GenAlgo::selCrossover(vector<int*>& pop, int numpop, vector<double>& fitnes
    p1 = montecarlo(fitness);
    p2 = montecarlo(fitness);
 
+   cout << "Mating " << p1 << " and " << p2 << endl;
+
    r = (double)rand() / RAND_MAX;
    if(r < GAP->conf->GA->pc)
       crossOver(pop,p1,p2,RINS,newsol);
@@ -125,6 +127,8 @@ bool GenAlgo::initPop(vector<int*>& pop, int numpop, vector<double>& fitness)
          return false;
       else
          fitness[i] = 1.0/z;
+
+      printIntArray(pop[i],n);
    }
    return true;
 }
