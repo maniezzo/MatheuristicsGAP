@@ -61,7 +61,7 @@ int Rins::dive(int** c, int maxNodes, int z, int* sol, bool fVerbose)
          {  for(i=0;i<m;i++)
             {  // linear primal sufficiently 1, not yet fixed, compatible with seed -> fix
                if(CPX->x[i*n+j] > 0.99 && CPX->lb[i*n+j] < 0.99 && solIter[j] == i)
-               {  cout << "Set variable " << i*n+j << ": client " << j << " to " << i << endl;
+               {  cout << "[RINS] Set variable " << i*n+j << ": client " << j << " to " << i << endl;
                   CPX->lb[i*n+j] = 1;
                   int cnt = 1;
                   int* indices = new int[cnt];     // which var
@@ -79,7 +79,7 @@ int Rins::dive(int** c, int maxNodes, int z, int* sol, bool fVerbose)
 
                // linear primal sufficiently 0, not yet fixed, compatible with seed -> fix
                if(CPX->x[i*n+j] < 0.01 && CPX->ub[i*n+j] > 0.01 && solIter[j] != i)
-               {  cout << "Set variable " << i*n+j << ": client " << j << " to be different from " << i << endl;
+               {  cout << "[RINS] Set variable " << i*n+j << ": client " << j << " to be different from " << i << endl;
                   CPX->ub[i*n+j] = 0;
                   int cnt = 1;
                   int* indices = new int[cnt];     // which var

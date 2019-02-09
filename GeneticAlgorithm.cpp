@@ -200,6 +200,9 @@ void GenAlgo::crossOver(vector<int*>& pop, int p1, int p2, Rins* RINS, int* news
       else
          newsol[j] = -1;
 
+   cout << "[GA] Xover fixes: ";
+   printIntArray(newsol,n);
+
    res = RINS->dive( GAP->c,
                      GAP->conf->rinsConf->maxnodes,
                      INT_MAX,
