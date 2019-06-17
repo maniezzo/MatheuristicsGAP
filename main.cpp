@@ -1,12 +1,17 @@
 #include <iostream>
 #include "Controller.h"
 
-int main()
-{  int input;
+int main(int argc, char* argv[])
+{  int input=-1;
    clock_t start, end;
    Controller* C = new Controller();
 
    do{
+      if(argc == 2 && input == -1)
+      {  input=atoi(argv[1]);
+         goto lstart;
+      }
+
       cout << "\n\nMatHeuristics, select:" << endl;
       cout << "1) Lower bounds" << endl;
       cout << "2) Exact" << endl;
@@ -39,6 +44,8 @@ int main()
       cout << "\n->";
 
       cin >> input;
+
+lstart:
       start = clock();
       switch (input) 
       {
@@ -144,6 +151,7 @@ int main()
       }
       end = clock();
       cout << "Time: " << (double)(end - start)/CLOCKS_PER_SEC << endl;
+      if(argc==2) {delete C; return 0;}
    } while(true);
 
 lend:  
