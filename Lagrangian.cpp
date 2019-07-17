@@ -34,7 +34,7 @@ int Lagrangian::lagrAss(int** c, double alpha, double alphastep, double minAlpha
    zlb       = DBL_MIN;
    zlbBest   = DBL_MIN;
    for(i=0;i<m;i++)
-      lambda[i] = 0.0;
+      lambda[i] = 1.0;
 
    iter  = 0;
    if(maxiter < 0) maxiter = INT_MAX;
