@@ -191,8 +191,10 @@ int Controller::run_ACO()
 {
    ANTS = new ACO(GAP, GAP->zub);
    int res = ANTS->antColony(GAP->c,
-      GAP->conf->ACO->maxiter
-   );
+      GAP->conf->ACO->maxiter,
+      GAP->conf->ACO->numpop,
+      GAP->conf->ACO->alpha
+      );
    if (ANTS != NULL) delete ANTS;
    ANTS = NULL;
    return res;

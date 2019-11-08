@@ -64,6 +64,8 @@ class Config
       class ACOconf
       {  public:
          int maxiter;
+         int numpop;    // num individuals in population
+         double alpha;  // attractiveness vs crossover
       };
 
       class EjectionConf

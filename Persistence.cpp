@@ -56,8 +56,13 @@ Config* Persistence::loadConfig()
 
    json::Object jGA = JSV["GA"];
    GAP->conf->GA->maxiter = jGA["maxiter"];
-   GAP->conf->GA->numpop = jGA["numpop"];
-   GAP->conf->GA->pc = jGA["pc"];
+   GAP->conf->GA->numpop  = jGA["numpop"];
+   GAP->conf->GA->pc      = jGA["pc"];
+
+   json::Object jACO = JSV["ACO"];
+   GAP->conf->ACO->maxiter = jACO["maxiter"];
+   GAP->conf->ACO->numpop  = jACO["numpop"];
+   GAP->conf->ACO->alpha   = jACO["alpha"];
 
    json::Object jEC = JSV["EC"];
    GAP->conf->EC->maxiter = jEC["maxiter"];

@@ -1,7 +1,8 @@
 ﻿#ifndef ACO_H
 #define ACO_H
 #include "GAP.h"
-#include "Rins.h"
+#include "MIPCplex.h"
+#include <ilcplex/cplex.h>
 
 class ACO
 {
@@ -10,7 +11,7 @@ class ACO
 
       ACO(GeneralizedAssignemnt*, int&);
       ~ACO();
-      int antColony(int**, int);
+      int antColony(int**, int maxiter, int numpop, double alpha);
 
    private:
       // local mirrors
@@ -18,6 +19,8 @@ class ACO
       int *sol,*solbest;
       int** req;
       int & zub,zlb;
+
+      vector<vector <double>> tau,eta;
 
       // private functions
       int ACO::montecarlo(vector<double>&);
