@@ -22,7 +22,7 @@
     <ProjectGuid>{7AC774D6-BE3A-4F3D-B304-08121A42886F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>GAPVS</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -41,7 +41,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -109,14 +109,14 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN64;_CONSOLE;IL_STD;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(CPLEX_STUDIO_DIR129)\cplex\include;$(CPLEX_STUDIO_DIR129)\concert\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CPLEX_STUDIO_DIR128)\cplex\include;$(CPLEX_STUDIO_DIR128)\concert\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CPLEX_STUDIO_DIR129)\cplex\lib\x64_windows_vs2017\stat_mda\cplex1290.lib;$(CPLEX_STUDIO_DIR129)\cplex\lib\x64_windows_vs2017\stat_mda\ilocplex.lib;$(CPLEX_STUDIO_DIR129)\concert\lib\x64_windows_vs2017\stat_mda\concert.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(CPLEX_STUDIO_DIR128)\cplex\lib\x64_windows_vs2017\stat_mda\cplex1280.lib;$(CPLEX_STUDIO_DIR128)\cplex\lib\x64_windows_vs2017\stat_mda\ilocplex.lib;$(CPLEX_STUDIO_DIR128)\concert\lib\x64_windows_vs2017\stat_mda\concert.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

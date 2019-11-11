@@ -30,7 +30,9 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
    numNZrow = n * m;   // max num of nonzero values in a row
    MIPCplex* CPX = new MIPCplex(numRows, numCols, numNZrow);
    CPX->GAP = GAP;
-   CPX->allocateMIP(true); // verbose output
+   CPX->allocateMIP(false); // verbose output
+   statusMIP = CPXsetintparam(CPX->env, CPXPARAM_ScreenOutput, CPX_OFF);
+
    statusMIP = CPX->solveMIP(false, false);   // LP of whole instance
    if (statusMIP == 0)
    {
@@ -64,7 +66,7 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
    for (iter = 0; iter < maxiter; iter++) // termination condition on num iterations
    {  if(iter%1 == 0)
          cout << "====== iteration " << iter << " zub = " << zub << endl;
-      int cnt = 1;
+      int cnt = n*m;
       int* indices = new int[cnt];     // which var
       char*   lu   = new char[cnt];    // lower limit
       double* bd   = new double[cnt];  // new bound
@@ -92,18 +94,34 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
                indices[j] = i * n + j;
                lu[j] = 'L';
                bd[j] = 1.0;
+               cnt = j;
                statusMIP = CPXchgbds(CPX->env, CPX->lp, cnt, indices, lu, bd);
                statusMIP = CPX->solveMIP(false, false);   // LP of partial solution
-               lbMove = CPX->objval;
-               moveProb[i] = lbMove - lb;
+               if(statusMIP)
+               {
+                  moveProb[i] = 0;
+                  cout << "Infeasible choice" << endl;
+               }
+               else
+               {
+                  lbMove = CPX->objval;
+                  moveProb[i] = lbMove - lb;
+                  cout << "lbmove = " << lbMove << endl;
+               }
                bd[j] = 0.0;                               // change back to free status
                statusMIP = CPXchgbds(CPX->env, CPX->lp, cnt, indices, lu, bd);
             }
             index = montecarlo(moveProb);
             if (index < m)
+            {
+               cout << "chosen index " << index << endl;
                sol[j] = index;
+            }
             else
+            {
+               cout << "infeasible partial solution" << endl;
                sol[j] = -1;   // infeasible partial solution
+            }
 
             for (int j1 = 0; j1 < j; j1++)   // reset partial solution
             {
@@ -129,6 +147,8 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
    {  cout << "[ANTS] Detected inconsistency" << endl;
       z = INT_MAX;
    }
+   else
+      cout << "zcheck  " << zcheck << endl;
    cout << "ANTS zub= " << zub << endl;
 
    if(CPX != NULL) delete CPX;
