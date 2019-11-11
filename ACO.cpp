@@ -18,7 +18,7 @@ ACO::~ACO()
 
 int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
 {  int z=0;
-   int i,j,k,iter,index;
+   int i,j,k,iter,index,cnt;
    double lb, lbMove;
    vector< vector <int> > pop(numpop);
    vector<double> moveProb(m);
@@ -66,10 +66,6 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
    for (iter = 0; iter < maxiter; iter++) // termination condition on num iterations
    {  if(iter%1 == 0)
          cout << "====== iteration " << iter << " zub = " << zub << endl;
-      int cnt = n*m;
-      int* indices = new int[cnt];     // which var
-      char*   lu   = new char[cnt];    // lower limit
-      double* bd   = new double[cnt];  // new bound
 
       // for each ant
       for (k = 0; k < numpop; k++)
@@ -81,6 +77,11 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
             {  sol[j] = -1;
                continue;
             }
+
+            cnt = j+1;
+            int* indices = new int[cnt];     // which var
+            char*   lu   = new char[cnt];    // lower limit
+            double* bd   = new double[cnt];  // new bound
 
             for (int j1 = 0; j1 < j; j1++)   // partial solution
             {
@@ -94,7 +95,6 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
                indices[j] = i * n + j;
                lu[j] = 'L';
                bd[j] = 1.0;
-               cnt = j;
                statusMIP = CPXchgbds(CPX->env, CPX->lp, cnt, indices, lu, bd);
                statusMIP = CPX->solveMIP(false, false);   // LP of partial solution
                if(statusMIP)
@@ -105,12 +105,17 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
                else
                {
                   lbMove = CPX->objval;
-                  moveProb[i] = lbMove - lb;
+                  moveProb[i] = GAP->EPS+1/(lbMove - lb);
                   cout << "lbmove = " << lbMove << endl;
                }
                bd[j] = 0.0;                               // change back to free status
                statusMIP = CPXchgbds(CPX->env, CPX->lp, cnt, indices, lu, bd);
             }
+
+            free(indices);
+            free(lu);
+            free(bd);
+
             index = montecarlo(moveProb);
             if (index < m)
             {
@@ -123,22 +128,29 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
                sol[j] = -1;   // infeasible partial solution
             }
 
-            for (int j1 = 0; j1 < j; j1++)   // reset partial solution
+            // reset partial solution
+            cnt = j;
+            indices = new int[cnt];  // which var
+            lu   = new char[cnt];    // lower limit
+            bd   = new double[cnt];  // new bound
+
+            for (int j1 = 0; j1 < j; j1++)   
             {
                indices[j1] = sol[j1] * n + j1;
                lu[j1] = 'L';
                bd[j1] = 0.0;
             }
             statusMIP = CPXchgbds(CPX->env, CPX->lp, cnt, indices, lu, bd);
+
+            free(indices);
+            free(lu);
+            free(bd);
          }
          int z = GAP->checkSol(sol);
          if(z<INT_MAX)
             for(j=0;j<n;j++)
                pop[k][j] = sol[j];
       }
-      delete(indices);
-      delete(lu);
-      delete(bd);
    }
 
    double zcheck = 0;
