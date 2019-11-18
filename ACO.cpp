@@ -42,8 +42,7 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
       {
          cout << " - Solution: " << endl;
          for (i = 0; i < m; ++i)
-         {
-            cout << "   " << i << ": ";
+         {  cout << "   " << i << ": ";
             for (j = 0; j < n; ++j)
                cout << CPX->x[i * n + j] << "\t";
             cout << endl;
@@ -54,7 +53,7 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
       lb = DBL_MAX;
 
    // trail initialization to lb
-   tau.assign(m, vector < double >(n, 0));
+   tau.assign(m, vector<double>(n, 0));
    for (i = 0; i < m; ++i)
       for (j = 0; j < n; ++j)
          tau[i][j] = CPX->x[i * n + j];
@@ -79,14 +78,17 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
             }
 
             cnt = j+1;
-            int* indices = new int[cnt];     // which var
-            char*   lu   = new char[cnt];    // lower limit
-            double* bd   = new double[cnt];  // new bound
+            //int* indices = new int[cnt];     // which var
+            //char*   lu   = new char[cnt];    // lower limit
+            //double* bd   = new double[cnt];  // new bound
+
+            vector<int> indices(cnt);
+            vector<char> lu(cnt);
+            vector<double> bd(cnt);
 
             for (int j1 = 0; j1 < j; j1++)   // partial solution
-            {
-               indices[j1] = sol[j1] * n + j1;
-               lu[j1] = 'L';
+            {  indices[j1] = sol[j1] * n + j1;
+               lu[j1] = 'B';
                bd[j1] = 1.0;
             }
 
@@ -95,26 +97,24 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
                indices[j] = i * n + j;
                lu[j] = 'L';
                bd[j] = 1.0;
-               statusMIP = CPXchgbds(CPX->env, CPX->lp, cnt, indices, lu, bd);
-               statusMIP = CPX->solveMIP(false, false);   // LP of partial solution
+               statusMIP = CPXchgbds(CPX->env, CPX->lp, cnt, &indices[0], &lu[0], &bd[0]);
+               statusMIP = CPX->solveMIP(false, true);   // LP of partial solution
                if(statusMIP)
-               {
-                  moveProb[i] = 0;
+               {  moveProb[i] = 0;
                   cout << "Infeasible choice" << endl;
                }
                else
-               {
-                  lbMove = CPX->objval;
-                  moveProb[i] = GAP->EPS+1/(lbMove - lb);
-                  cout << "lbmove = " << lbMove << endl;
+               {  lbMove = CPX->objval;
+                  moveProb[i] = 1/(1+lbMove - lb);
+                  cout << "lbmove = " << lbMove << " moveprob " << moveProb[i] << endl;
                }
                bd[j] = 0.0;                               // change back to free status
-               statusMIP = CPXchgbds(CPX->env, CPX->lp, cnt, indices, lu, bd);
+               statusMIP = CPXchgbds(CPX->env, CPX->lp, cnt, &indices[0], &lu[0], &bd[0]);
             }
 
-            free(indices);
-            free(lu);
-            free(bd);
+            //delete(indices);
+            //delete(lu);
+            //delete(bd);
 
             index = montecarlo(moveProb);
             if (index < m)
@@ -130,9 +130,9 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
 
             // reset partial solution
             cnt = j;
-            indices = new int[cnt];  // which var
-            lu   = new char[cnt];    // lower limit
-            bd   = new double[cnt];  // new bound
+            indices.resize(cnt); // which var
+            lu.resize(cnt);      // lower limit
+            bd.resize(cnt);      // new bound
 
             for (int j1 = 0; j1 < j; j1++)   
             {
@@ -140,11 +140,11 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
                lu[j1] = 'L';
                bd[j1] = 0.0;
             }
-            statusMIP = CPXchgbds(CPX->env, CPX->lp, cnt, indices, lu, bd);
+            statusMIP = CPXchgbds(CPX->env, CPX->lp, cnt, &indices[0], &lu[0], &bd[0]);
 
-            free(indices);
-            free(lu);
-            free(bd);
+            //free(indices);
+            //free(lu);
+            //free(bd);
          }
          int z = GAP->checkSol(sol);
          if(z<INT_MAX)
