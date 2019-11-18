@@ -600,9 +600,9 @@ int MIPCplex::solveMIP(bool fMIPint, bool isVerbose)
    else
    {
       status = CPXsolution(env, lp, &solstat, &objval, x, pi, slack, dj);
-      if (status)
-      {
-         cerr << "Failed to obtain LP solution.\n";
+      if (status || solstat>1)
+      {  cerr << "Failed to obtain LP solution.\n";
+         status = max(status,solstat);
          goto lreturn;
       }
       if(isVerbose)
