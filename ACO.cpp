@@ -18,10 +18,11 @@ ACO::~ACO()
 
 int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
 {  int z=0;
-   int i,j,k,iter,index,cnt;
-   double lb, lbMove;
+   int i,j,k,iter,index,cnt,numsol=0;
+   double lb=0, lbMove,avgtau=0,zavg=0;
    vector< vector <int> > pop(numpop);
-   vector<double> moveProb(m);
+   vector<vector <double>> deltaTau;
+   vector<double> moveProb(m),zpop(numpop);
 
    // Lower bound computation, linear bound
    int numRows, numCols, numNZrow, statusMIP;
@@ -50,13 +51,16 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
       }
    }
    else
-      lb = DBL_MAX;
+      lb = 0;
 
    // trail initialization to lb
    tau.assign(m, vector<double>(n, 0));
    for (i = 0; i < m; ++i)
       for (j = 0; j < n; ++j)
-         tau[i][j] = CPX->x[i * n + j];
+      {  tau[i][j] = CPX->x[i * n + j];
+         avgtau += tau[i][j]/(m*n);
+      }
+   vector<double> zlast(n,lb);
 
    // initialize empty solutions
    pop.assign(numpop, vector <int> (n,-1));
@@ -68,7 +72,7 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
 
       // for each ant
       for (k = 0; k < numpop; k++)
-      {  
+      {  zpop[k] = -1;
          vector<int> sol (n,-1);
          for (j = 0; j < n; j++)    // for each client to assign
          {
@@ -78,10 +82,6 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
             }
 
             cnt = j+1;
-            //int* indices = new int[cnt];     // which var
-            //char*   lu   = new char[cnt];    // lower limit
-            //double* bd   = new double[cnt];  // new bound
-
             vector<int> indices(cnt);
             vector<char> lu(cnt);
             vector<double> bd(cnt);
@@ -98,34 +98,29 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
                lu[j] = 'L';
                bd[j] = 1.0;
                statusMIP = CPXchgbds(CPX->env, CPX->lp, cnt, &indices[0], &lu[0], &bd[0]);
-               statusMIP = CPX->solveMIP(false, true);   // LP of partial solution
+               statusMIP = CPX->solveMIP(false, false);   // LP of partial solution
                if(statusMIP)
                {  moveProb[i] = 0;
                   cout << "Infeasible choice" << endl;
                }
                else
                {  lbMove = CPX->objval;
-                  moveProb[i] = 1/(1+lbMove - lb);
+                  moveProb[i] = alpha*tau[i][j] + (1-alpha)*1/(1+lbMove - lb);
                   cout << "lbmove = " << lbMove << " moveprob " << moveProb[i] << endl;
                }
                bd[j] = 0.0;                               // change back to free status
                statusMIP = CPXchgbds(CPX->env, CPX->lp, cnt, &indices[0], &lu[0], &bd[0]);
             }
 
-            //delete(indices);
-            //delete(lu);
-            //delete(bd);
-
             index = montecarlo(moveProb);
             if (index < m)
-            {
-               cout << "chosen index " << index << endl;
+            {  cout << "chosen index " << index << endl;
                sol[j] = index;
             }
             else
-            {
-               cout << "infeasible partial solution" << endl;
+            {  cout << "infeasible partial solution" << endl;
                sol[j] = -1;   // infeasible partial solution
+               zpop[k] = -1;
             }
 
             // reset partial solution
@@ -135,22 +130,43 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
             bd.resize(cnt);      // new bound
 
             for (int j1 = 0; j1 < j; j1++)   
-            {
-               indices[j1] = sol[j1] * n + j1;
+            {  indices[j1] = sol[j1] * n + j1;
                lu[j1] = 'L';
                bd[j1] = 0.0;
             }
             statusMIP = CPXchgbds(CPX->env, CPX->lp, cnt, &indices[0], &lu[0], &bd[0]);
-
-            //free(indices);
-            //free(lu);
-            //free(bd);
          }
          int z = GAP->checkSol(sol);
          if(z<INT_MAX)
+         {  if(z<zub) 
+            {  zub = z;
+               for(i=0;i<n;i++) solbest[i]=sol[i];
+               cout << " ***** New zub = " << zub << endl;
+            }
             for(j=0;j<n;j++)
                pop[k][j] = sol[j];
+            zpop[k] = z;
+            numsol++;   // feasible solution counter
+            zlast[numsol%n] = z; // to compute the average of the last n sol
+         }
+         else
+            cout << " -- not good --" << endl;
       }
+
+      // ------------------------------------   trail update
+      deltaTau.assign(m, vector<double>(n, 0));
+      zavg=0;
+      for(j=0;j<n;j++) zavg+=zlast[j];
+      zavg = zavg/n;
+      for(k=0;k<numpop;k++)
+         if(zpop[k]>=0)    // if feasible solution
+            for(j=0;j<n;j++)
+            {  i = pop[k][j];
+               deltaTau[i][j] += avgtau*(1-(zpop[k]-lb)/(zavg-lb));
+            }
+      for(i=0;i<m;i++)
+         for(j=0;j<n;j++)
+            tau[i][j] += deltaTau[i][j];
    }
 
    double zcheck = 0;
@@ -173,10 +189,10 @@ int ACO::montecarlo(vector<double>& v)
 
    for(i=0;i<v.size();i++)
       sum += v[i];
+   if(sum<=0) return -1;   // no feasible choice
 
    double f = sum * ( (double)rand() / RAND_MAX );
    sum = 0;
-
    for(i=0;i<v.size();i++)
    {  sum += v[i];
       if(sum >= f) break;

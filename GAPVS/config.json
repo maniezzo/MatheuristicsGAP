@@ -26,8 +26,8 @@
    "VNS":      { "maxiter" : 5000,
                  "fGoMath" : 1 
                },
-   "ACO":      { "maxiter" : 1,
-                 "numpop" : 1,
+   "ACO":      { "maxiter" : 3,
+                 "numpop" : 2,
                  "alpha"  : 0.5
                },
    "lagrAss" : { "alpha"     : 2.5,
