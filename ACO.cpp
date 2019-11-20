@@ -162,11 +162,13 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
          if(zpop[k]>=0)    // if feasible solution
             for(j=0;j<n;j++)
             {  i = pop[k][j];
-               deltaTau[i][j] += avgtau*(1-(zpop[k]-lb)/(zavg-lb));
+               deltaTau[i][j] += avgtau*(1-(zpop[k]-lb)/(zavg-lb));  // dynamic scaling
             }
       for(i=0;i<m;i++)
          for(j=0;j<n;j++)
-            tau[i][j] += deltaTau[i][j];
+         {  tau[i][j] += deltaTau[i][j];
+            tau[i][j] = (tau[i][j] >= 0 ? tau[i][j] : 0);
+         }
    }
 
    double zcheck = 0;
@@ -198,13 +200,6 @@ int ACO::montecarlo(vector<double>& v)
       if(sum >= f) break;
    }
    return i;
-}
-
-// dynamic fitness scaling of cost value
-double ACO::dynFitScal(double lb, double tau0, double zcurr, double zbar)
-{  double res =0;
-   
-   return res;
 }
 
 

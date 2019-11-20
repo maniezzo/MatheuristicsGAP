@@ -24,8 +24,6 @@ class ACO
 
       // private functions
       int montecarlo(vector<double>& v);
-      double dynFitScal(double lb, double tau0, double zcurr, double zbar);
-
 };
 
 #endif // ACO_H
