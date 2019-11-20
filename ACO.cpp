@@ -114,7 +114,7 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
 
             index = montecarlo(moveProb);
             if (index < m)
-            {  cout << "chosen index " << index << endl;
+            {  cout << "j= " << j <<" chosen i= " << index << endl;
                sol[j] = index;
             }
             else
@@ -146,11 +146,11 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
             for(j=0;j<n;j++)
                pop[k][j] = sol[j];
             zpop[k] = z;
-            numsol++;   // feasible solution counter
+            numsol++;            // feasible solution counter
             zlast[numsol%n] = z; // to compute the average of the last n sol
          }
          else
-            cout << " -- not good --" << endl;
+            cout << "Final, infeasible ant " << endl;
       }
 
       // ------------------------------------   trail update
