@@ -36,11 +36,11 @@ void Controller::readJSONdata(string filename)
 }
 
 // simple constructive heuristic
-double Controller::simpleContruct()
+double Controller::simpleConstruct()
 {  int res;
 
    CH   = new ConstructHeu(GAP,GAP->zub); 
-   res = CH->simpleContruct();
+   res = CH->simpleConstruct();
    if(CH != NULL) delete CH;
    CH = NULL;
    return res;

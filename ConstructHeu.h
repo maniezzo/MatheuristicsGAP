@@ -9,7 +9,8 @@ class ConstructHeu
 
       ConstructHeu(GeneralizedAssignemnt*, int&);
       ~ConstructHeu();
-      int simpleContruct();
+      int simpleConstruct();
+      int construct(vector<int> indCost);
 
    private:
       //void computeRegrets(vector<int> &);

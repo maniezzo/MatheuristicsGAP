@@ -59,7 +59,7 @@ lstart:
          break;
       case (3): 
          cout << "Simple constructive" << endl;
-         C->simpleContruct();
+         C->simpleConstruct();
          break;
       case (4): 
          cout << "MTHG" << endl;

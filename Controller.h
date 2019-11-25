@@ -50,7 +50,7 @@ class Controller
       Controller();
       ~Controller();
       void   readJSONdata(string filename);   // reads data from json file
-      double simpleContruct();
+      double simpleConstruct();
       void   computeBounds();
       double exactCplex();
       int    run_mthg();

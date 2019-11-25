@@ -17,7 +17,7 @@ ConstructHeu::~ConstructHeu()
 }
 
 // constructive: each at its least disliked facility
-int ConstructHeu::simpleContruct()
+int ConstructHeu::simpleConstruct()
 {  int i,ii,j,jj,m,n;
 
    m = GAP->m;
@@ -78,4 +78,69 @@ int ConstructHeu::simpleContruct()
    }
    for(int k=0;k<n;k++) solbest[k] = sol[k];
    return zub;
+}
+
+// constructive: each at its least disliked facili, given the ordering
+int ConstructHeu::construct(vector<int> indCost)
+{  int i,ii,j,jj,m,n,z;
+
+   m = GAP->m;
+   n = GAP->n;
+   vector<int> cost(m),capleft(m),indReq(m);
+   vector<int> regrets(n);
+   auto compCost = [&cost](int a, int b){ return cost[a] < cost[b]; };           // ASC order
+   auto compRegr = [&regrets](int a, int b){ return regrets[a] > regrets[b]; };  // DESC order
+
+   if(GAP->n == NULL)
+   {  cout << "Instance undefined. Exiting" << endl;
+      return INT_MAX;
+   }
+
+   z = INT_MAX;
+   for(i=0;i<m;i++) capleft[i] = GAP->cap[i];
+
+   z = 0;
+   for(jj=0;jj<n;jj++)
+   {  j = indCost[jj];  // client order as received
+      for(i=0;i<m;i++)
+      {  cost[i]= GAP->aversion(i,j);
+         indReq[i] = i;
+      }
+
+      std::sort(indReq.begin(), indReq.end(), compCost);
+
+      ii=0;
+      while(ii<m)
+      {  i=indReq[ii];
+         if(capleft[i]>=GAP->req[i][j])
+         {  GAP->sol[j]=i;
+            capleft[i] -= GAP->req[i][j];
+            z += GAP->c[i][j];
+            break;
+         }
+         ii++;
+      }
+
+      if(ii==m)
+      {  cout << "[Construct] Error. ii="+ii << endl;
+         z = INT_MAX;
+         break;
+      }
+   }
+
+   if(abs(GAP->checkSol(GAP->sol)-z) > GAP->EPS)
+   {  cout << "[Contruct]: Error" << endl;
+      z = INT_MAX;
+   }
+   else
+   {  cout << "Construction terminated. z = " << z << endl;
+      printIntArray(sol,n);
+
+      if(z<zub)
+      {  zub = z;
+         for(int k=0;k<n;k++) solbest[k] = sol[k];
+      }
+   }
+
+   return z;
 }
