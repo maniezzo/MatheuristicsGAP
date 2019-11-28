@@ -1,5 +1,6 @@
 ﻿#include "SS.h"
-#include <algorithm>
+#include <algorithm>    // for permutations
+#include <functional>   // for vector hashing
 
 ScatterSearch::ScatterSearch(GeneralizedAssignemnt* GAPinstance, int & zz) : zub(zz)
 {
@@ -60,7 +61,19 @@ int ScatterSearch::go_scatter(int** c, int maxiter, int numpop, double alpha)
    if (LS != NULL) delete LS;
    LS = NULL;
 
-   // ----------------------------------------- 
+   // ----------------------------------------- subset generatino (parent set edfinition)
+   // (here, simply randomly select subsets of three different solutions)
+
+   int k = rand() % numpop;
+   cont = 0;
+   vector<int> parents;
+   bool isFound = false;
+
+   for(int kk = 0;kk<numpop;kk++)
+   {  for(int h=0;h<parents.size();h++)
+         if()
+   }
+
 
    // Lower bound computation, linear bound
    int numRows, numCols, numNZrow, statusMIP;
