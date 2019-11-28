@@ -30,6 +30,10 @@
                  "numpop" : 10,
                  "alpha"  : 0.4
                },
+   "SS":       { "maxiter" : 5,
+                 "numpop" : 10,
+                 "alpha"  : 0.4
+               },
    "lagrAss" : { "alpha"     : 2.5,
                  "alphastep" : 0.97,
                  "minalpha"  : 0.001,

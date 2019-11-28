@@ -90,6 +90,9 @@
     <ClInclude Include="..\ACO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\SS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Controller.cpp">
@@ -165,6 +168,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\ACO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SS.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

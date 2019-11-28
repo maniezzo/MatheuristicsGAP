@@ -11,6 +11,7 @@ Config::Config()
    GRASP   = new GRASPconf();
    VNS     = new VNSconf();
    ACO     = new ACOconf();
+   SS      = new SSconf();
    lagrAss = new LagrAss();
    lagrCap = new LagrCap();
    rinsConf= new RinsConf();

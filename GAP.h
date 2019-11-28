@@ -65,7 +65,14 @@ class Config
       {  public:
          int maxiter;
          int numpop;    // num individuals in population
-         double alpha;  // attractiveness vs crossover
+         double alpha;  // attractiveness vs trail
+      };
+
+      class SSconf
+      {  public:
+         int maxiter;
+         int numpop;    // num individuals in population
+         double alpha;  // placeholder
       };
 
       class EjectionConf
@@ -142,6 +149,7 @@ class Config
       GRASPconf*    GRASP;
       VNSconf*      VNS;
       ACOconf*      ACO;
+      SSconf*       SS;
       LagrAss*      lagrAss;
       LagrCap*      lagrCap;
       LocBranching* locBranching;
