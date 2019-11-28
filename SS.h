@@ -2,6 +2,8 @@
 #define SS_H
 #include "GAP.h"
 #include "MIPCplex.h"
+#include "ConstructHeu.h"
+#include "LocalSearch.h"
 #include <ilcplex/cplex.h>
 
 class ScatterSearch

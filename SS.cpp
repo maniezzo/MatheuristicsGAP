@@ -1,4 +1,5 @@
 ﻿#include "SS.h"
+#include <algorithm>
 
 ScatterSearch::ScatterSearch(GeneralizedAssignemnt* GAPinstance, int & zz) : zub(zz)
 {
@@ -17,15 +18,51 @@ ScatterSearch::~ScatterSearch()
 }
 
 int ScatterSearch::go_scatter(int** c, int maxiter, int numpop, double alpha)
-{  int z=0;
+{  int z=0,zcheck;
    int i,j,k,iter,index,cnt,numsol=0;
    double lb=0, lbMove,avgtau=0,zavg=0;
    vector< vector <int> > pop(numpop);
    vector<vector <double>> deltaTau;
    vector<double> moveProb(m),zpop(numpop);
+   vector<int> indCost;                   // for population initialization
+
+   // ------------------------ initialization
+   for(j=0;j<n;j++)
+      indCost.push_back(j);
+
+   ConstructHeu* CH  = new ConstructHeu(GAP,GAP->zub); 
+   int nind = sizeof(indCost) / sizeof(indCost[0]);
+   int zsol, cont=0;
+   do { 
+      zsol = CH->constructWithInd(indCost, false); 
+      if(zsol < INT_MAX)
+      {  for(j=0;j<n;j++)
+            pop[cont].push_back(GAP->sol[j]);
+         // printIntArray(&pop[cont][0],n);
+         cout << "cont= " << cont << " zsol = " << zsol << endl;
+         cont++;
+      }
+   } while (next_permutation(&indCost[0], &indCost[0]+nind) && cont < numpop); 
+
+   if(CH != NULL) delete CH;
+   CH = NULL;
+
+   // ----------------------------------------- solution improvement
+   LocalSearch* LS = new LocalSearch(GAP, GAP->zub);
+   for(k=0;k<numpop;k++)
+   {
+      for(j=0;j<n;j++) GAP->sol[j] = pop[k][j];
+      zsol = LS->opt10(GAP->c,true);
+      for(j=0;j<n;j++) pop[k][j] = GAP->sol[j];
+      //zcheck = GAP->checkSol(pop[k]);
+      cout << "cont= " << cont << " zsol = " << zsol << endl;
+   }
+   if (LS != NULL) delete LS;
+   LS = NULL;
 
    // Lower bound computation, linear bound
    int numRows, numCols, numNZrow, statusMIP;
+
    numRows = n + m;   // num of constraints
    numCols = n * m;   // num of variables
    numNZrow = n * m;   // max num of nonzero values in a row
@@ -171,7 +208,7 @@ int ScatterSearch::go_scatter(int** c, int maxiter, int numpop, double alpha)
          }
    }
 
-   double zcheck = 0;
+   zcheck = 0;
    zcheck = GAP->checkSol(solbest);
    if (abs(zcheck - zub) > GAP->EPS)
    {  cout << "[ANTS] Detected inconsistency" << endl;

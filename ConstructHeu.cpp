@@ -81,7 +81,7 @@ int ConstructHeu::simpleConstruct()
 }
 
 // constructive: each at its least disliked facili, given the ordering
-int ConstructHeu::construct(vector<int> indCost)
+int ConstructHeu::constructWithInd(vector<int> indCost, bool isVerbose)
 {  int i,ii,j,jj,m,n,z;
 
    m = GAP->m;
@@ -92,7 +92,7 @@ int ConstructHeu::construct(vector<int> indCost)
    auto compRegr = [&regrets](int a, int b){ return regrets[a] > regrets[b]; };  // DESC order
 
    if(GAP->n == NULL)
-   {  cout << "Instance undefined. Exiting" << endl;
+   {  if(isVerbose) cout << "Instance undefined. Exiting" << endl;
       return INT_MAX;
    }
 
@@ -122,19 +122,19 @@ int ConstructHeu::construct(vector<int> indCost)
       }
 
       if(ii==m)
-      {  cout << "[Construct] Error. ii="+ii << endl;
+      {  if(isVerbose) cout << "[Construct] Error. ii="+ii << endl;
          z = INT_MAX;
          break;
       }
    }
 
    if(abs(GAP->checkSol(GAP->sol)-z) > GAP->EPS)
-   {  cout << "[Contruct]: Error" << endl;
+   {  if(isVerbose) cout << "[Contruct]: Error" << endl;
       z = INT_MAX;
    }
    else
-   {  cout << "Construction terminated. z = " << z << endl;
-      printIntArray(sol,n);
+   {  if(isVerbose) cout << "Construction terminated. z = " << z << endl;
+      if(isVerbose) printIntArray(sol,n);
 
       if(z<zub)
       {  zub = z;

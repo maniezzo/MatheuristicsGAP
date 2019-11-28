@@ -200,6 +200,20 @@ int Controller::run_ACO()
    return res;
 }
 
+// Scatter search
+int Controller::run_SS()
+{
+   SS = new ScatterSearch(GAP, GAP->zub);
+   int res = SS->go_scatter(GAP->c,
+      GAP->conf->SS->maxiter,
+      GAP->conf->SS->numpop,
+      GAP->conf->SS->alpha
+   );
+   if (SS != NULL) delete SS;
+   SS = NULL;
+   return res;
+}
+
 // ejection chain
 int Controller::run_ejection()
 {

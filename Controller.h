@@ -10,6 +10,7 @@
 #include "TabuSearch.h"
 #include "GeneticAlgorithm.h"
 #include "ACO.h"
+#include "SS.h"
 #include "Ejection.h"
 #include "MetaLocalSearch.h"
 #include "Lagrangian.h"
@@ -35,6 +36,7 @@ class Controller
       TabuSearch*       TS;            // Tabu search
       GenAlgo*          GA;            // Genetic algorithm
       ACO*              ANTS;          // ant colony optimization
+      ScatterSearch*    SS;            // Scatter search
       Ejection*         EC;            // Ejection chain
       MetaLocalSearch*  MLS;           // ILS, VND, VNS
       Lagrangian*       LAGR;          // lagrangian, assignment and capacities
@@ -62,6 +64,7 @@ class Controller
       int    run_VNS();
       int    run_genAlgo();
       int    run_ACO();
+      int    run_SS();
       int    run_ejection();
       int    run_lagrAss();
       int    run_lagrCap();
