@@ -26,6 +26,8 @@ class ScatterSearch
 
       // private functions
       int montecarlo(vector<double>& v);
+      vector<int> listDiff(vector<int> s1, vector<int> s2);
+      int pathSon(vector<int> s1, vector<int> s2);
 };
 
 #endif // SS_H
