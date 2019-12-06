@@ -49,7 +49,7 @@ int ScatterSearch::go_scatter(int** c, int maxiter, int numpop, double alpha)
          cout << "cont= " << cont << "(" << id << ") zsol = " << zsol << endl;
          cont++;
       }
-   } while (next_permutation(&indCost[0], &indCost[0]+nind) && cont < 20*numpop); 
+   } while (next_permutation(&indCost[0], &indCost[0]+nind) && cont < 2*numpop); 
 
    if(CH != NULL) delete CH;
    CH = NULL;
