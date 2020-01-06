@@ -54,8 +54,8 @@
    "FandB"    :{ "delta"     : 5,
                  "maxnodes"  : 200000
                },
-   "corridor" :{ "delta"     : 8,
-                 "maxiter"   : 50
+   "corridor" :{ "delta"     : 4,
+                 "maxiter"   : 5
                },
    "locBranching" : { "k"    : 4,
                       "maxiter"   : 5

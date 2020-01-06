@@ -37,7 +37,7 @@ int Corridor::solveByCorridor(int** c, int delta, int maxiter, bool fVerbose)
    zubIter = zub;
    for(j=0;j<n;j++) solIter[j] = sol[j];
    cout << "Solution: "; for(j=0;j<n;j++) cout << solIter[j] << " "; cout << endl;
-   cout << "Corridor. Starting from z=" << zubIter << endl; 
+   cout << "Corridor method. Starting from z=" << zubIter << endl; 
 
    try
    {  
@@ -99,35 +99,35 @@ lend:
 void Corridor::updateModelWithCorridor(MIPCplex* CPX, int* solIter, int delta)
 {  int i,j,isol,rand,status;
    bool isInCorridor;
-   vector<int> lstFacilit;
+   vector<int> lstClient;
    vector<int> lstCorridor;
 
-   for(i=0;i<m;i++)
-      lstFacilit.push_back(i);
+   for(i=0;i<n;i++)
+      lstClient.push_back(i);
 
-   delta = min(delta,m);
+   delta = min(delta,n);
    for(i=0;i<delta;i++)
-   {  rand = std::rand() % lstFacilit.size();     // lists changes size at every iteration
-      lstCorridor.push_back(lstFacilit[rand]);    // corridor contains facilities
-      lstFacilit.erase(lstFacilit.begin()+rand);  // remove facility from choosable set
+   {  rand = std::rand() % lstClient.size();     // lists could change size at every iteration
+      lstCorridor.push_back(lstClient[rand]);    // corridor contains clients
+      lstClient.erase(lstClient.begin()+rand);   // remove client from choosable set
    }
 
    int cnt = n*m;
    int* indices = new int[cnt];    // indices of the columns corresponding to the variables for which bounds are to be changed
-   char* lu     = new char[cnt];   // whether the corresponding entry in the array bd specifies the lower or upper bound on column indices[j]
+   char*   lu   = new char[cnt];   // whether the corresponding entry in the array bd specifies the lower or upper bound on column indices[j]
    double* bd   = new double[cnt]; // new values of the lower or upper bounds of the variables present in indices
 
    cout << "Corridor: ";
-   for(i=0;i<m;i++)
+   for(j=0;j<n;j++)
    {
-      // is the facility in the corridor?
+      // is the client in the corridor?
       isInCorridor = false;
-      if(std::find(lstCorridor.begin(), lstCorridor.end(), i)!=lstCorridor.end())
+      if(std::find(lstCorridor.begin(), lstCorridor.end(), j)!=lstCorridor.end())
       {  isInCorridor = true;
-         cout << i << " ";
+         cout << j << " ";
       }
 
-      for(j=0;j<n;j++)
+      for(i=0;i<m;i++)
       {  if(isInCorridor)              // set it free
          {  
             if(CPX->lb[i*n+j] == 0.0)  // lb OK, only ub could be wrong
