@@ -25,7 +25,6 @@ class Kernel
       int & zub,zlb;
       bool  isVerbose;
 
-      void Kernel::allocateInitialSol(MIPCplex* CPX, int* solInit);
       int Kernel::genCol(MIPCplex* CPX, vector<double> d);
       void Kernel::addColumn(MIPCplex* CPX, int iserv, int* Ksol, double);
 };

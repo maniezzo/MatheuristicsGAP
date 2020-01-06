@@ -26,13 +26,16 @@ int Kernel::solveByKernel(bool fVerbose)
    {  cout << "Instance undefined. Exiting" << endl;
       return INT_MAX;
    }
+   cout << "Kernel search, initial solution" << endl;
    isVerbose = fVerbose;
 
-   MIPCplex* CPX = new MIPCplex();
+   int numRows,numCols,numNZrow;
+   numRows = n+m;   // num of constraints
+   numCols = n*m;   // num of variables
+   numNZrow= n*m;   // max num of nonzero values in a row
+   MIPCplex* CPX = new MIPCplex(numRows,numCols,numNZrow);
    CPX->GAP = GAP;
-
-   cout << "Dantzig-Wolfe, initial solution" << endl;
-   allocateInitialSol(CPX, sol);
+   CPX->allocateMIP(isVerbose);
 
    try
    {  iter = 0;
@@ -63,162 +66,6 @@ lend:
    CPX->freeMIP();
    delete(CPX);
    return 0;
-}
-
-// this frees the  variables in the corridor
-void Kernel::allocateInitialSol(MIPCplex* CPX, int* solInit)
-{
-   int i, j, status;
-   double kcost;
-
-   try
-   {
-      status = 0;
-      CPX->env = NULL;
-      CPX->lp = NULL;
-      CPX->pi = NULL;
-      CPX->dj = NULL;
-      CPX->x  = NULL;
-      CPX->slack = NULL;
-
-      cout << "Allocating CPLEX for master" << endl;
-      CPX->env = CPXopenCPLEX(&status);
-      if (CPX->env == NULL)
-      {  char  errmsg[1024];
-         cerr << "Could not open CPLEX environment.\n";
-         CPXgeterrorstring(CPX->env, status, errmsg);
-         cerr << errmsg;
-         goto lend;
-      }
-
-      // Turn on output to the screen 
-      if (isVerbose)
-         status = CPXsetintparam(CPX->env, CPX_PARAM_SCRIND, CPX_ON);
-      else
-         status = CPXsetintparam(CPX->env, CPX_PARAM_SCRIND, CPX_OFF);
-      if (status)
-      {  cerr << "Failure to turn on screen indicator, error " << status << endl;
-         goto lend;
-      }
-
-      // Turn on data checking 
-      status = CPXsetintparam(CPX->env, CPX_PARAM_DATACHECK, CPX_ON);
-      if (status)
-      {  cerr << "Failure to turn on data checking, error " << status << endl;
-         goto lend;
-      }
-
-      // Create the problem. 
-      CPX->lp = CPXcreateprob(CPX->env, &status, "GAP-SPP");
-      if (CPX->lp == NULL)
-      {  cerr << "Failed to create LP.\n";
-         goto lend;
-      }
-
-      CPXchgobjsen(CPX->env, CPX->lp, CPX_MIN);  // Problem is minimization 
-
-      // Create the rows
-      int numRows = n+m;
-      double*  rhs = (double *)   malloc(numRows * sizeof(double));
-      char*    sense = (char *)   malloc(numRows * sizeof(char));
-      char**   rowname = (char **)malloc(numRows * sizeof(char*));
-
-      // assignment constraints rows
-      for(i=0;i<n;i++)
-      {
-         rowname[i] = (char *)malloc(sizeof(char) * (7));   // why not 7?
-         sprintf(rowname[i], "%s%d", "a", i);
-         sense[i] = 'E';
-         rhs[i] = 1.0;
-      }
-
-      // server constraints rows
-      for (i = 0; i<m; i++)
-      {
-         rowname[n+i] = (char *)malloc(sizeof(char) * (7));   // why not 7?
-         sprintf(rowname[n+i], "%s%d", "s", i);
-         sense[n + i] = 'E';
-         rhs[n + i] = 1.0;
-      }
-      status = CPXnewrows(CPX->env, CPX->lp, numRows, rhs, sense, NULL, rowname);
-      if (status) goto TERMINATE;
-      for (i = 0; i<numRows; i++)
-         free(rowname[i]);
-      free(rowname); rowname = NULL;
-      free(sense);   sense = NULL;
-      free(rhs);     rhs = NULL;
-
-      // ------------------ Add the columns
-      int numCols = m;
-      int numNZcol= m+n;   // each client and the iserver knapsacks
-      int k = 0;
-
-      double* obj     = (double *)malloc(numCols * sizeof(double));
-      int*    cmatbeg = (int    *)malloc(numCols * sizeof(int));
-      int*    cmatind = (int    *)malloc(numNZcol * sizeof(int));
-      double* cmatval = (double *)malloc(numNZcol * sizeof(double));
-      double* lb = (double *)malloc(numCols * sizeof(double));
-      double* ub = (double *)malloc(numCols * sizeof(double));
-      char** colname = (char **)malloc(numCols * sizeof(char*));
-
-      numCols = 0;   // counting them
-      numNZcol = 0;
-
-      for (i = 0; i<GAP->m; i++)
-      {
-         cmatbeg[i] = k;
-         kcost = 0;
-         for(j=0;j<n;j++)
-            if(sol[j]==i)
-            {
-               kcost += GAP->c[i][j];
-               cmatval[k] = 1;         // assignments
-               cmatind[k] = j;
-               k++;
-            }
-         cmatval[k] = 1;               // server
-         cmatind[k] = n+i;
-         k++;
-
-         obj[numCols] = kcost;
-         lb[numCols]  = 0;
-         ub[numCols]  = 1.0;
-         //ctype[numCols]   = 'C'; // 'B', 'I','C' to indicate binary, general integer, continuous 
-         //lptype[numCols]  = 'C'; // 'B', 'I','C' to indicate binary, general integer, continuous 
-         colname[numCols] = (char *)malloc(sizeof(char) * (6));   // why not 6?
-         sprintf(colname[numCols], "%s%d", "x", i);
-
-         numCols++;
-      }
-      numNZcol = k;
-
-      status = CPXaddcols(CPX->env, CPX->lp, numCols, numNZcol, obj, cmatbeg, cmatind, cmatval, lb, ub, colname);
-
-      // Free up allocated memory 
-      if (obj != NULL)     free(obj);     obj = NULL;
-      if (cmatbeg != NULL) free(cmatbeg); cmatbeg = NULL;
-      if (cmatind != NULL) free(cmatind); cmatind = NULL;
-      if (cmatval != NULL) free(cmatval); cmatval = NULL;
-      free(lb); lb = NULL;
-      free(ub); ub = NULL;
-      for (i = 0; i<numCols; i++)
-         free(colname[i]);
-      free(colname);       colname = NULL;
-
-      if (status)  goto TERMINATE;
-   }
-   catch (std::exception const& e)
-   {
-      cout << "[allocateInitialSol] Error: " << e.what() << endl;
-      goto lend;
-   }
-
-TERMINATE:
-   if (status)
-      cout << "[allocateInitialSol] ---------------  Error in constraint definition" << endl;
-
-lend:
-   return;
 }
 
 // generates negative red. cost columns
