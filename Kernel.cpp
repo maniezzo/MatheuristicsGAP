@@ -49,6 +49,8 @@ int Kernel::solveByKernel(bool fVerbose)
          // reads the solution
          zlb = CPX->objval;
          cout << "iter "<< iter << " zlb " << zlb << endl;
+
+         // dual variables, assignments (n) and capacity (m)
          d.clear();
          for(i=0;i<n+m;i++)
             d.push_back(CPX->pi[i]);
@@ -81,7 +83,7 @@ int Kernel::genCol(MIPCplex* CPX, vector<double> d)
    {
 
       for (j = 0; j < n; j++)
-      {  q[j] = GAP->req[i][j];         // requests to the i-th wh by the j-th elem to reassign
+      {  q[j] = GAP->req[i][j];         // requests to the i-th server by the j-th client to reassign
          Ksol[j] = 0;
          val[j] = -1*(GAP->c[i][j]-d[j]);
       }
