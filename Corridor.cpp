@@ -95,7 +95,7 @@ lend:
    return zub;
 }
 
-// this frees the  variables in the corridor
+// this frees the variables in the corridor
 void Corridor::updateModelWithCorridor(MIPCplex* CPX, int* solIter, int delta)
 {  int i,j,isol,rand,status;
    bool isInCorridor;

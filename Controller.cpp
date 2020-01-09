@@ -411,7 +411,8 @@ int Controller::run_benders()
 int Controller::run_kernel()
 {
    KER = new Kernel(GAP, GAP->zub);
-   int res = KER->solveByKernel( (GAP->conf->isVerbose ? true : false));
+   int numBuckets = 4;  // there should be a way to compute this
+   int res = KER->solveByKernel( (GAP->conf->isVerbose ? true : false),numBuckets);
    if (KER != NULL) delete KER;
    KER = NULL;
    return res;

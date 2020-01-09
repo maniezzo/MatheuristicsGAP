@@ -15,7 +15,7 @@ class Kernel
 
       Kernel(GeneralizedAssignemnt*, int&);
       ~Kernel();
-      int solveByKernel(bool fVerbose);
+      int solveByKernel(bool fVerbose, int numBuckets);
 
    private:
       // local mirrors
@@ -25,8 +25,7 @@ class Kernel
       int & zub,zlb;
       bool  isVerbose;
 
-      int Kernel::genCol(MIPCplex* CPX, vector<double> d);
-      void Kernel::addColumn(MIPCplex* CPX, int iserv, int* Ksol, double);
+      void updateModelWithKernel(MIPCplex* CPX, vector<bool> kernel);
 };
 
 #endif // KERNEL_H
