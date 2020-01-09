@@ -618,6 +618,7 @@ int MIPCplex::solveMIP(bool fMIPint, bool isVerbose)
          goto lend;
       }
       status = CPXgetpi(env, lp, pi, 0, CPXgetnumrows(env, lp) - 1);
+      status = CPXgetdj(env, lp, dj, 0, CPXgetnumcols(env,lp)-1);
 
       if(isVerbose)
       {  status = CPXgetlb(env, lp, lb, 0, cur_numcols - 1);

@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
       cout << (C->GAP->zub == INT_MAX ? "X" : "20") << ") Corridor" << endl;
       cout << (C->GAP->zub == INT_MAX ? "X" : "21") << ") Local Branching" << endl;
       cout << (C->GAP->zub == INT_MAX ? "X" : "22") << ") Benders" << endl;
-      cout << (C->GAP->zub == INT_MAX ? "X" : "23") << ") Kernel search" << endl;
+      cout << "23) Kernel search" << endl;
       cout << (C->GAP->zub == INT_MAX ? "X" : "24") << ") Very large-scale neigh search" << endl;
       cout << endl;
       cout << "0) Exit" << endl;

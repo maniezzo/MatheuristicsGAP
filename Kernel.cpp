@@ -18,9 +18,10 @@ Kernel::~Kernel()
 }
 
 int Kernel::solveByKernel(bool fVerbose, int numBuckets)
-{  int i,j,status,numCol,iter,numKer=0,numNotLB,numVarInBucket,lastVar=0,numAdded;
-   double zlb;
-   vector<double> x,d; // milp primal and dual vars
+{  int i,j,ii,status,numCol,iter,numKer=0,numNotLB,numVarInBucket,lastVar=0,numAdded;
+   double zlb,z;
+   vector<double> x,d,dj; // milp primal, dual vars and red costs
+   auto compRedCost = [&dj](double a, double b){ return dj[a] > dj[b]; }; // DESC order
 
    if(GAP->n == NULL)
    {  cout << "Instance undefined. Exiting" << endl;
@@ -34,6 +35,7 @@ int Kernel::solveByKernel(bool fVerbose, int numBuckets)
    numCols = n*m;   // num of variables
    numNZrow= n*m;   // max num of nonzero values in a row
    vector<bool> kernel(n*m);
+   vector<int> indDj(n*m);
    MIPCplex* CPX = new MIPCplex(numRows,numCols,numNZrow);
    CPX->GAP = GAP;
    CPX->allocateMIP(isVerbose);
@@ -49,7 +51,7 @@ int Kernel::solveByKernel(bool fVerbose, int numBuckets)
       zlb = CPX->objval;
       cout << "iter "<< iter << " zlb " << zlb << endl;
 
-      // primal variables (m*n)
+      // primal variables (m*n) and reduced costs
       x.clear();
       for(i=0;i<n*m;i++)
       {  x.push_back(CPX->x[i]);
@@ -57,6 +59,8 @@ int Kernel::solveByKernel(bool fVerbose, int numBuckets)
          {  kernel[i] = true; // initial kernel
             numKer++;
          }
+         dj.push_back(CPX->dj[i]);  // reduced costs (CPLEX naming!)
+         indDj[i]=i;
       }
       numNotLB = n*m-numKer;
       numVarInBucket = (int) ( 1.0*numNotLB / numBuckets + 0.999);
@@ -64,19 +68,23 @@ int Kernel::solveByKernel(bool fVerbose, int numBuckets)
       // dual variables, assignments (n) and capacity (m). Here unused
       d.clear();
       for(i=0;i<n+m;i++) d.push_back(CPX->pi[i]);
+      std::sort(indDj.begin(), indDj.end(), compRedCost); // sort by increasing red costs
 
+      CPXsetintparam(CPX->env,CPXPARAM_MIP_Display,0);  // cplex output to screen
       do
       {
          updateModelWithKernel(CPX,kernel);
+         CPXsetdblparam(CPX->env,CPXPARAM_MIP_Tolerances_UpperCutoff,zub); // cost cut
          status = CPX->solveMIP(true,false); // LP solution
          if ( status )
          {  cout << "[solveByKernel] No solution" << endl;
+            z = DBL_MAX;
          }
          else
          {
             // reads the solution
-            zub = CPX->objval;
-            cout << "iter "<< iter << " zub " << zub << endl;
+            z = CPX->objval;
+            if(z<zub) zub = z;
 
             // primal variables (m*n)
             x.clear();
@@ -87,14 +95,19 @@ int Kernel::solveByKernel(bool fVerbose, int numBuckets)
          numAdded = j = 0;
          while (numAdded < numVarInBucket)
          {
-            if(!kernel[j])
-               kernel[j] = true;
+            ii = indDj[j]; // considering vars in reduced costs order
+            if(!kernel[ii])
+            {  kernel[ii] = true;
+               numKer++;
+               numAdded++;
+            }
             j++;
             if(j==kernel.size())
                break;
          }
+         cout << "iter "<< iter << " z= " << z << " zub=" << zub << endl;
          iter++;
-      } while (iter < 100);
+      } while (iter < 100 && numAdded > 0);
    }
    catch(std::exception const& e)
    {  cout << "[solveByKernel] Error: " << e.what() << endl;
@@ -121,7 +134,8 @@ void Kernel::updateModelWithKernel(MIPCplex* CPX, vector<bool> kernel)
    char*   lu   = new char[cnt];   // whether the corresponding entry in the array bd specifies the lower or upper bound on column indices[j]
    double* bd   = new double[cnt]; // new values of the lower or upper bounds of the variables present in indices
 
-   cout << "kernel: ";
+   cout << "kernel:";
+   for(i=0;i<n*m;i++) if(kernel[i]) cout << " " << i;
    for(i=0;i<n*m;i++)
    {
       if(kernel[i])             // set it free
@@ -148,9 +162,9 @@ void Kernel::updateModelWithKernel(MIPCplex* CPX, vector<bool> kernel)
    cout << endl;
 
    status = CPXchgbds(CPX->env, CPX->lp, cnt, indices, lu, bd);
-   delete(indices);
-   free(lu);
-   free(bd);
+   delete[](indices);
+   delete[](lu);
+   delete[](bd);
 
    return;
 }
