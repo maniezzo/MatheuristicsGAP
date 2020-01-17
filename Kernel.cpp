@@ -17,8 +17,8 @@ Kernel::~Kernel()
    //dtor
 }
 
-int Kernel::solveByKernel(bool fVerbose, int numBuckets)
-{  int i,j,ii,status,numCol,iter,numKer=0,numNotLB,numVarInBucket,lastVar=0,numAdded;
+int Kernel::solveByKernel(bool fVerbose, int numVarInBucket)
+{  int i,j,ii,status,numCol,iter,nkinit,numKer=0,numNotLB,numBuckets,lastVar=0,numAdded;
    double zlb,z;
    vector<double> x,d,dj; // milp primal, dual vars and red costs
    auto compRedCost = [&dj](double a, double b){ return dj[a] > dj[b]; }; // DESC order
@@ -34,7 +34,7 @@ int Kernel::solveByKernel(bool fVerbose, int numBuckets)
    numRows = n+m;   // num of constraints
    numCols = n*m;   // num of variables
    numNZrow= n*m;   // max num of nonzero values in a row
-   vector<bool> kernel(n*m);
+   vector<bool> kernel(n*m),lambda_i(n*m);
    vector<int> indDj(n*m);
    MIPCplex* CPX = new MIPCplex(numRows,numCols,numNZrow);
    CPX->GAP = GAP;
@@ -57,13 +57,16 @@ int Kernel::solveByKernel(bool fVerbose, int numBuckets)
       {  x.push_back(CPX->x[i]);
          if(x[i]>0)
          {  kernel[i] = true; // initial kernel
+            lambda_i[i] = true;
             numKer++;
          }
          dj.push_back(CPX->dj[i]);  // reduced costs (CPLEX naming!)
          indDj[i]=i;
       }
+      nkinit   = numKer;
       numNotLB = n*m-numKer;
-      numVarInBucket = (int) ( 1.0*numNotLB / numBuckets + 0.999);
+      numBuckets = (int) (1.0*numNotLB/numVarInBucket + 0.999);
+      //numVarInBucket = (int) ( 1.0*numNotLB / numBuckets + 0.999);
 
       // dual variables, assignments (n) and capacity (m). Here unused
       d.clear();
@@ -73,7 +76,7 @@ int Kernel::solveByKernel(bool fVerbose, int numBuckets)
       CPXsetintparam(CPX->env,CPXPARAM_MIP_Display,0);  // cplex output to screen
       do
       {
-         updateModelWithKernel(CPX,kernel);
+         updateModelWithKernel(CPX,lambda_i);
          CPXsetdblparam(CPX->env,CPXPARAM_MIP_Tolerances_UpperCutoff,zub); // cost cut
          status = CPX->solveMIP(true,false); // LP solution
          if ( status )
@@ -89,21 +92,35 @@ int Kernel::solveByKernel(bool fVerbose, int numBuckets)
             // primal variables (m*n)
             x.clear();
             for(i=0;i<n*m;i++)
-               x.push_back(CPX->x[i]);
+            {  x.push_back(CPX->x[i]);
+               if(CPX->x[i] && !kernel[i]) 
+               {  kernel[i] = true;
+                  numKer++;
+                  cout << "variable " << i << " entering kernel" << endl;
+               }
+            }
          }
 
-         numAdded = j = 0;
-         while (numAdded < numVarInBucket)
-         {
-            ii = indDj[j]; // considering vars in reduced costs order
-            if(!kernel[ii])
-            {  kernel[ii] = true;
-               numKer++;
-               numAdded++;
-            }
+         for(int jj=0;jj<n*m;jj++)
+         {  j = indDj[jj];
+            if(!kernel[j])
+               lambda_i[j] = false;
+         }
+
+         numAdded = 0;
+         j = lastVar;
+         while(numAdded < numVarInBucket)
+         {  ii = indDj[j]; // considering vars in reduced costs order
+            if(kernel[ii])
+               lambda_i[ii] = true;
+            else
+               if (numAdded < numVarInBucket)
+               {  lambda_i[ii] = true;
+                  numAdded++;
+               }
             j++;
-            if(j==kernel.size())
-               break;
+            if(j==n*m) break;
+            lastVar = j;
          }
          cout << "iter "<< iter << " z= " << z << " zub=" << zub << endl;
          iter++;
@@ -121,12 +138,12 @@ lend:
 }
 
 // defines the vars that can enter the solution
-void Kernel::updateModelWithKernel(MIPCplex* CPX, vector<bool> kernel)
+void Kernel::updateModelWithKernel(MIPCplex* CPX, vector<bool> lambda_i)
 {  int i,j,isol,rand,status;
    vector<int> lstKernel;
 
    for(i=0;i<n*m;i++)
-      if(kernel[i])
+      if(lambda_i[i])
          lstKernel.push_back(i);    // kernel contains vars
 
    int  cnt = n*m;
@@ -134,11 +151,11 @@ void Kernel::updateModelWithKernel(MIPCplex* CPX, vector<bool> kernel)
    char*   lu   = new char[cnt];   // whether the corresponding entry in the array bd specifies the lower or upper bound on column indices[j]
    double* bd   = new double[cnt]; // new values of the lower or upper bounds of the variables present in indices
 
-   cout << "kernel:";
-   for(i=0;i<n*m;i++) if(kernel[i]) cout << " " << i;
+   cout << "Lambda_i:";
+   for(i=0;i<n*m;i++) if(lambda_i[i]) cout << " " << i;
    for(i=0;i<n*m;i++)
    {
-      if(kernel[i])             // set it free
+      if(lambda_i[i])             // set it free
       {  
          if(CPX->lb[i] == 0.0)  // lb OK, only ub could be wrong
          {  CPX->ub[i] = 1.0; 
