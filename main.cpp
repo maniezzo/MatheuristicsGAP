@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
       cout << "16) Lagrangian, relax assignments" << endl;
       cout << (C->GAP->zub == INT_MAX ? "X" : "17") << ") Rins" << endl;
       cout << "18) Beam search" << endl;
-      cout << "19) Forward & Backward" << endl;
+      cout << "19) Fore'n'back" << endl;
       cout << (C->GAP->zub == INT_MAX ? "X" : "20") << ") Corridor" << endl;
       cout << (C->GAP->zub == INT_MAX ? "X" : "21") << ") Local Branching" << endl;
       cout << (C->GAP->zub == INT_MAX ? "X" : "22") << ") Benders" << endl;
