@@ -15,7 +15,7 @@ class Lagrangian
    private:
       int* subproblem_ass(int**, double*, double*, int, double*, int*);
       void subproblem_cap(int**, double*, double*, int, double*, int*, int*);
-      void writeIterData(ofstream&, int, double, int, int, double, int*, int*, double*, double);
+      void writeIterData(ofstream&, int, double, double, int, int, double, int*, int*, double*, double);
 
       // local mirrors
       int m,n;
