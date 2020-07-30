@@ -80,7 +80,7 @@ int Lagrangian::lagrAss(int** c, double alpha, double alphastep, double minAlpha
 
       if(iter%1000 == 0)                          // -------------------------- logging
       {  cout << "[lagrAss] iter="<<iter<<" zub="<<zub<<" zlb="<<zlbBest<<" zcurr="<<zcurr<<endl;
-         writeIterData(flog, iter, zlb, zlbBest, zub, zcurr, alpha, lbsol, subgrad, lambda, step);
+         writeIterData(flog, iter, zlb, zlbBest, zub, zcurr, alpha, lbsol, subgrad, lambda, step, m);
       }
    }
 
@@ -127,22 +127,22 @@ int* Lagrangian::subproblem_ass(int** c, double *zlb, double *zlbBest, int zub, 
 
 // just logging on file flog
 void Lagrangian::writeIterData(ofstream& flog, int iter, double zlb, double zlbBest, int zub, int zcurr, double alpha,
-                               int* lbsol, int* subgrad, double* lambda, double step)
+                               int* lbsol, int* subgrad, double* lambda, double step, int len)
 {  int i;
 
-   flog << "iter "<< iter <<" zlb = "<< zlb <<" zlbBest = "<< zlbBest <<" zub = "<< zub <<" zcurr = "<< zcurr <<" alpha = "<< alpha <<" \nlbsol ";
-   for(i=0;i<n;i++)
+   flog << "iter "<< iter <<" zlb = "<< zlb <<" zlbBest = "<< zlbBest <<" zub = "<< zub <<" zcurr = "<< zcurr <<" alpha = "<< alpha <<" lbsol ";
+   for(i=0;i<len;i++)
       flog << " "<<lbsol[i];
 
-   flog << "\nsubgr ";
-   for(i=0;i<m;i++)
+   flog << " subgr ";
+   for(i=0;i<len;i++)
       flog << " "<<subgrad[i];
 
-   flog << "\nlambda ";
-   for(i=0;i<m;i++)
+   flog << " lambda ";
+   for(i=0;i<len;i++)
       flog << " "<<lambda[i];
 
-   flog << "\nstep "<<step<< endl;
+   flog << " step "<<step<< endl;
 };
 
 // Lagrangian, feasible for the capacities, relaxes assignments
@@ -170,7 +170,7 @@ int Lagrangian::lagrCap(int** c, double alpha, double alphastep, double minAlpha
 
       if(zcurr == zlbBest || (zub-zlbBest) < 1.0)                       // -------------------------- Optimum found 
       {  cout << "[lagrCap] Found the optimum!!! zopt="<< zub << " zlb=" << zlbBest<<endl;
-         writeIterData(flog, iter, zlb, zlbBest, zub, zcurr, alpha, lbsol, subgrad, lambda, step);
+         writeIterData(flog, iter, zlb, zlbBest, zub, zcurr, alpha, lbsol, subgrad, lambda, step, n);
          for(i=0;i<n;i++) solbest[i]=sol[i];
          zub = zcurr;
          goto lend;
@@ -189,7 +189,7 @@ int Lagrangian::lagrCap(int** c, double alpha, double alphastep, double minAlpha
          {  cout << "[lagrCap] -------- zub improved! " << zub;
             for(i=0;i<n;i++) solbest[i]=sol[i];
             zub = zcurr;
-            writeIterData(flog, iter, zlb, zlbBest, zub, zcurr, alpha, lbsol, subgrad, lambda, step);
+            writeIterData(flog, iter, zlb, zlbBest, zub, zcurr, alpha, lbsol, subgrad, lambda, step, n);
          }
       }
 
@@ -209,7 +209,7 @@ int Lagrangian::lagrCap(int** c, double alpha, double alphastep, double minAlpha
 
       if(iter%1 == 0 || iter < 20)              // -------------------------- logging
       {  cout << "[lagrCap] iter="<<iter<<" zub="<<zub<<" zlb="<<zlbBest<<" zcurr="<<zcurr<<endl;
-         writeIterData(flog, iter, zlb, zlbBest, zub, zcurr, alpha, lbsol, subgrad, lambda, step);
+         writeIterData(flog, iter, zlb, zlbBest, zub, zcurr, alpha, lbsol, subgrad, lambda, step, n);
       }
    }
 
