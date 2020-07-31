@@ -24,6 +24,7 @@ class FandB
       // the state of each partial solution
       struct node
       {  int z;      // cost of the partial soluton
+         int client; // the assigned client
          int server; // who the client is assigned to
          int dad;    // which sol was expanded into this
          vector<int> capused;  // array of used capacities
@@ -39,16 +40,16 @@ class FandB
 
       int indLastNode;  // aka stack.size(). just it
 
-      int sweepForward(int** c, int delta, int maxNodes, int openNodes, vector<int> indCost);
-      int sweepBackward(int** c, int delta, int maxNodes, int openNodes, vector<int> indCost);
-      int expandNode(int** c, int j, int jlev, int currNode, vector<int> indCost, bool isForward);  // generates feasible offspring of a node
+      int sweepForward(ofstream&, int** c, int delta, int maxNodes, int openNodes, vector<int> indCost);
+      int sweepBackward(ofstream&, int** c, int delta, int maxNodes, int openNodes, vector<int> indCost);
+      int expandNode(ofstream&, int** c, int j, int jlev, int currNode, vector<int> indCost, bool isForward);  // generates feasible offspring of a node
       int insertInOrder(list<int> & lst, int ind);              // inserts a stack index in a list, ordered on a key
-      int readSolutionF(int currNode, vector<int> indCost);     // reads the solutions from a last node of the forward tree
-      int readSolutionB(int currNode, vector<int> indCost);     // reads the solutions from a last node of the backward tree
-      int readSolutionFB(int jLevF, int fNode, int bNode, vector<int> indCost); // reads the solution as a mix of forw and a backw partials
+      int readSolutionF(ofstream&, int currNode, vector<int> indCost);     // reads the solutions from a last node of the forward tree
+      int readSolutionB(ofstream&, int currNode, vector<int> indCost);     // reads the solutions from a last node of the backward tree
+      int readSolutionFB(ofstream&, int jLevF, int fNode, int bNode, vector<int> indCost); // reads the solution as a mix of forw and a backw partials
       int findNextNodeF(int jlev, int newNodes, int openNodes); // finds the next node to expand forward
       int findNextNodeB(int jlev, int newNodes, int openNodes); // finds the next node to expand backward
-      int checkMatch(int jlev, int indLastNode, bool isForward, vector<int> indCost);// checks for matching partial solutions
+      int checkMatch(ofstream&, int jlev, int indLastNode, bool isForward, vector<int> indCost);// checks for matching partial solutions
 };
 
 #endif // FANDB_H

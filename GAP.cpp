@@ -402,6 +402,15 @@ void printIntArray(int* a, int n)
    cout << endl;
 }
 
+// file print a 1D array of ints
+void fprintIntArray(ofstream& flog, int* a, int n)
+{
+   int i;
+   for (i = 0; i<n; i++)
+      flog << a[i] << " ";
+   flog << endl;
+}
+
 // print a 1D array of doubles
 void printDblArray(double* a, int n)
 {
