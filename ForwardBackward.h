@@ -39,6 +39,7 @@ class FandB
       vector<int> bTopCost; // max cost of expanded node at each level of the backward tree
 
       int indLastNode;  // aka stack.size(). just it
+      int numFathomed;  // num fahtomed nodes
 
       int sweepForward(ofstream&, int** c, int delta, int maxNodes, int openNodes, vector<int> indCost);
       int sweepBackward(ofstream&, int** c, int delta, int maxNodes, int openNodes, vector<int> indCost);

@@ -69,6 +69,7 @@ int FandB::forwardBackward(int** c, int delta, int maxNodes, bool fVerbose)
    // client ordering is dictated by regrets!
    z = 0;
    currNode = 0;
+   numFathomed = 0;
    openNodesF += expandNode(flog, c, indCost[0], -1, currNode, indCost, true);// stack initialization, forward
    fTree[0].push_back(currNode);                // append to list of expanded nodes
 
@@ -119,6 +120,8 @@ int FandB::sweepForward(ofstream& flog, int** c, int delta, int maxNodes, int op
             openNodes += numExp;
             newNodes  += numExp;
          }
+         else
+            numFathomed++;
          if(indLastNode > maxNodes)
          {  cout << "node limit reached" << endl;
             goto end;   
@@ -134,7 +137,7 @@ int FandB::sweepForward(ofstream& flog, int** c, int delta, int maxNodes, int op
       }
       if(isVerbose || n>0)
       {  cout << "[sweepForward] Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes "<< indLastNode << " top cost " << fTopCost[jlev] << endl;
-         flog << "[sweepForward] Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes "<< indLastNode << " top cost " << fTopCost[jlev] << endl;
+         flog << "[sweepForward] Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes "<< indLastNode << " top cost " << fTopCost[jlev] << " fathomed " << numFathomed <<  endl;
       }
    }
 end:
@@ -163,6 +166,8 @@ int FandB::sweepBackward(ofstream& flog, int** c, int delta, int maxNodes, int o
             openNodes += numExp;
             newNodes  += numExp;
          }
+         else
+            numFathomed++;
          if(indLastNode > maxNodes) goto end;   // node limit reached
          bTree[jlev].push_back(currNode);       // append to list of expanded nodes
          bList[jlev].pop_front();               // remove from list of nodes to expand
@@ -175,7 +180,7 @@ int FandB::sweepBackward(ofstream& flog, int** c, int delta, int maxNodes, int o
       }
       if(isVerbose || n>0)
       {  cout << "[sweepBackward] Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes "<< indLastNode << " top cost " << bTopCost[jlev] << endl;
-         flog << "[sweepBackward] Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes "<< indLastNode << " top cost " << bTopCost[jlev] << endl;
+         flog << "[sweepBackward] Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes "<< indLastNode << " top cost " << bTopCost[jlev] << " numfathomed " << numFathomed <<  endl;
       }
    }
 end:
@@ -274,7 +279,7 @@ int FandB::checkMatch(ofstream& flog,int jlev, int indLastNode, bool isForward, 
 
    // Iterate and print values of the completion list
    for (iterator = (*lstCompletions).begin(); iterator != (*lstCompletions).end(); ++iterator) 
-   {  if(isVerbose) cout << (isForward ? "F" : "B") << " lev." <<  jlev << " node compl " << *iterator << endl;
+   {  if(isVerbose) cout << (isForward ? "forw" : "backw") << " level" <<  jlev << " node_compl " << *iterator << endl;
 
       if(stack[*iterator].server < 0) 
          continue;
@@ -282,19 +287,24 @@ int FandB::checkMatch(ofstream& flog,int jlev, int indLastNode, bool isForward, 
          if(stack[indLastNode].capused[i] + stack[*iterator].capused[i] > GAP->cap[i])
             goto next;
       z = stack[indLastNode].z + stack[*iterator].z;
-      if(isVerbose) cout << "MATCHING FEASIBLE! cost " << z << endl;
-      flog << "MATCHING FEASIBLE! cost " << z << " zub " << zub << endl;
+      if(isVerbose) 
+      {  cout << "MATCHING FEASIBLE! cost " << z << endl;
+         flog << (isForward ? "forw" : "backw") << " level" <<  jlev << " node_compl " << *iterator;
+         flog << "cost " << z << " zub " << zub ;
+      }
 
       //if(z < zub)
       {  int jLevF = (isForward ? jlev : jlev-1);
          int fNode = (isForward ? indLastNode : *iterator);
          int bNode = (isForward ? *iterator : indLastNode);
-         z=readSolutionFB(flog, jLevF,fNode,bNode,indCost);
+
+         z=readSolutionFB(flog, jLevF,fNode,bNode,indCost); // with fprintarray
          if(isVerbose)
-            cout << "f node "<< indLastNode << " z_f " << stack[indLastNode].z << 
+         {  cout << "f node "<< indLastNode << " z_f " << stack[indLastNode].z << 
             " b node "<< *iterator  << " z_b " << stack[*iterator].z << " zub " << zub << endl;
-         flog << "f node "<< indLastNode << " z_f " << stack[indLastNode].z << 
-            " b node "<< *iterator  << " z_b " << stack[*iterator].z << " zub " << zub << endl;
+            flog << "f_node "<< indLastNode << " z_f " << stack[indLastNode].z << 
+            " b_node "<< *iterator  << " z_b " << stack[*iterator].z << endl;
+         }
       }
 next: ;
    }
@@ -393,8 +403,8 @@ int FandB::readSolutionFB(ofstream& flog, int jLevF, int fNode, int bNode, vecto
    }
    if(abs(z-zub) > GAP->EPS)
       cout << "[readSolutionFB]: ---------------------------- Error, solution cost mismatch" << endl;
-   flog << "zsol " << zsol << " ";
-   fprintIntArray(flog,sol,n);
+
+   flog << "zsol " << zsol << " "; fprintIntArray(flog,sol,n);
 
    if(z < zub)
    {  cout << "New zub: " << zub << endl;
@@ -409,7 +419,7 @@ int FandB::readSolutionFB(ofstream& flog, int jLevF, int fNode, int bNode, vecto
 int FandB::findNextNodeF(int jlev, int newNodes, int openNodes)
 {  int jmin;
 
-   if(newNodes>0 || jlev == n-1)    // if there were expansions, go on
+   if(newNodes>0 || jlev == n-1)    // if there are expansions, go on
       jlev++;
    else              // find the highest level with unexpanded nodes
    {  for(jmin=0;jmin<n;jmin++)
