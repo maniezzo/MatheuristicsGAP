@@ -68,24 +68,24 @@ int FandB::forwardBackward(int** c, int delta, int maxNodes, bool fVerbose)
 
    // client ordering is dictated by regrets!
    z = 0;
+   iter = 0;
    currNode = 0;
    numFathomed = 0;
-   openNodesF += expandNode(flog, c, indCost[0], -1, currNode, indCost, true);// stack initialization, forward
+   openNodesF += expandNode(flog, iter, c, indCost[0], -1, currNode, indCost, true);// stack initialization, forward
    fTree[0].push_back(currNode);                // append to list of expanded nodes
 
    z = 0;
    currNode   = 1;
-   openNodesB += expandNode(flog, c, indCost[n-1], n, currNode, indCost, false);// stack initialization, backward
+   openNodesB += expandNode(flog, iter, c, indCost[n-1], n, currNode, indCost, false);// stack initialization, backward
    bTree[n-1].push_back(currNode);              // append to list of expanded nodes
 
-   iter = 0;
    while ((openNodesF+openNodesB) > 0 && indLastNode < maxNodes && iter < maxIter)
    {
       cout << "Iter " << iter << " Num nodes: " << indLastNode << " open nodes forw." << openNodesF << " open nodes backw." << openNodesB << endl;
-      flog << " ---------- FORWARD -------------> " << endl;
-      openNodesF = sweepForward(flog, c, delta,  maxNodes, openNodesF, indCost);
-      flog << " <---------- BACKWARD ------------ " << endl;
-      openNodesB = sweepBackward(flog, c, delta,  maxNodes, openNodesB, indCost);
+      cout << " ---------- FORWARD -------------> " << endl;
+      openNodesF = sweepForward(flog, iter, c, delta,  maxNodes, openNodesF, indCost);
+      cout << " <---------- BACKWARD ------------ " << endl;
+      openNodesB = sweepBackward(flog, iter, c, delta,  maxNodes, openNodesB, indCost);
       iter++;
    }
 
@@ -101,14 +101,15 @@ int FandB::forwardBackward(int** c, int delta, int maxNodes, bool fVerbose)
 }
 
 // one run of fowrward beam search
-int FandB::sweepForward(ofstream& flog, int** c, int delta, int maxNodes, int openNodes, vector<int> indCost)
+int FandB::sweepForward(ofstream& flog, int iter, int** c, int delta, int maxNodes, int openNodes, vector<int> indCost)
 {  int j,jlev,k;
    int currNode,newNodes,numExp;
+   int nNodes0 = indLastNode;
 
    jlev = newNodes = currNode = 0;             // got to initialize them 
    while(jlev<n)                               // main construction loop, could be while true
    {  jlev = findNextNodeF(jlev,newNodes,openNodes);     // backjunmping!
-      if(jlev==n) 
+      if(jlev==n || (indLastNode - nNodes0)>(maxNodes/10)) 
          break;
 
       newNodes = 0;                            // new nodes at corrent level
@@ -116,7 +117,7 @@ int FandB::sweepForward(ofstream& flog, int** c, int delta, int maxNodes, int op
       {  currNode = fList[jlev].front();                 // gets the first element
          if(jlev < n && stack[currNode].z < zub)
          {  j = (jlev == n-1 ? -1 : indCost[jlev+1]);    // client order by regrets
-            numExp    = expandNode(flog, c, j, jlev, currNode, indCost, true);
+            numExp    = expandNode(flog, iter, c, j, jlev, currNode, indCost, true);
             openNodes += numExp;
             newNodes  += numExp;
          }
@@ -136,8 +137,8 @@ int FandB::sweepForward(ofstream& flog, int** c, int delta, int maxNodes, int op
                if(stack[currNode].z < fTopCost[jlev]) cout << "[sweepForward] inner cost insertion" << endl;
       }
       if(isVerbose || n>0)
-      {  cout << "[sweepForward] Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes "<< indLastNode << " top cost " << fTopCost[jlev] << endl;
-         flog << "[sweepForward] Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes "<< indLastNode << " top cost " << fTopCost[jlev] << " fathomed " << numFathomed <<  endl;
+      {  cout << "[sweepForward] iter " << iter << " Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes "<< indLastNode << " top cost " << fTopCost[jlev] << endl;
+         flog << "[sweepForward] iter " << iter << " Level " << jlev << " expanded " << k << " new " << newNodes << " open " << openNodes << " tot "<< indLastNode << " topcost " << fTopCost[jlev] << " fathomed " << numFathomed <<  endl;
       }
    }
 end:
@@ -145,7 +146,7 @@ end:
 }
 
 // one run of backward beam search
-int FandB::sweepBackward(ofstream& flog, int** c, int delta, int maxNodes, int openNodes, vector<int> indCost)
+int FandB::sweepBackward(ofstream& flog, int iter, int** c, int delta, int maxNodes, int openNodes, vector<int> indCost)
 {  int j,jlev,k;
    int currNode,newNodes=0,numExp;
 
@@ -162,7 +163,7 @@ int FandB::sweepBackward(ofstream& flog, int** c, int delta, int maxNodes, int o
       {  currNode = bList[jlev].front();               // gets the first element
          if(jlev >= 0 && stack[currNode].z < zub)
          {  j = (jlev == 0 ? -1 : indCost[jlev-1]);    // client order by regrets
-            numExp    = expandNode(flog, c, j, jlev, currNode, indCost, false);
+            numExp    = expandNode(flog, iter, c, j, jlev, currNode, indCost, false);
             openNodes += numExp;
             newNodes  += numExp;
          }
@@ -179,8 +180,8 @@ int FandB::sweepBackward(ofstream& flog, int** c, int delta, int maxNodes, int o
                if(stack[currNode].z < bTopCost[jlev]) cout << "[sweepBackward] inner cost insertion" << endl;
       }
       if(isVerbose || n>0)
-      {  cout << "[sweepBackward] Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes "<< indLastNode << " top cost " << bTopCost[jlev] << endl;
-         flog << "[sweepBackward] Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes "<< indLastNode << " top cost " << bTopCost[jlev] << " numfathomed " << numFathomed <<  endl;
+      {  cout << "[sweepBackward] iter " << iter << " Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes "<< indLastNode << " top cost " << bTopCost[jlev] << endl;
+         flog << "[sweepBackward] iter " << iter << " Level " << jlev << " expanded " << k << " new " << newNodes << " open " << openNodes << " tot "<< indLastNode << " topcost " << bTopCost[jlev] << " numfathomed " << numFathomed <<  endl;
       }
    }
 end:
@@ -188,7 +189,7 @@ end:
 }
 
 // c: costs; j: current client; jlev; current tree level; corrNode: node currently expanded (will be father)
-int FandB::expandNode(ofstream& flog, int** c, int j, int jlev, int currNode, vector<int> indCost, bool isForward)
+int FandB::expandNode(ofstream& flog, int iter, int** c, int j, int jlev, int currNode, vector<int> indCost, bool isForward)
 {  int i,ii,numNewNodes=0,z;
    vector<int> cost(m),indReq(m);
    auto compCost = [&cost](int a, int b){ return cost[a] < cost[b]; };  // ASC order
@@ -230,15 +231,15 @@ int FandB::expandNode(ofstream& flog, int** c, int j, int jlev, int currNode, ve
          indLastNode++;
          if(isForward)
          {  insertInOrder(fList[jlev+1], indLastNode);   // inserts the index of the node in the level list
-            checkMatch(flog, jlev+1, indLastNode, isForward, indCost);       // check for feasible completion
-            if(isVerbose)   
-               cout << "lev." << jlev+1 << " node " << indLastNode << " cost " << newNode.z << endl;
+            checkMatch(flog, iter, jlev+1, indLastNode, isForward, indCost);       // check for feasible completion
+            //if(isVerbose)   
+            //   cout << "lev." << jlev+1 << " node " << indLastNode << " cost " << newNode.z << endl;
          }
          else
          {  insertInOrder(bList[jlev-1], indLastNode);   // inserts the index of the node in the level list
-            checkMatch(flog, jlev-1, indLastNode, isForward, indCost);       // check for feasible completion
-            if(isVerbose)   
-               cout << "lev." << jlev-1 << " node " << indLastNode << " cost " << newNode.z << endl;
+            checkMatch(flog, iter, jlev-1, indLastNode, isForward, indCost);       // check for feasible completion
+            //if(isVerbose)
+            //   cout << "lev." << jlev-1 << " node " << indLastNode << " cost " << newNode.z << endl;
          }
          numNewNodes++;
       }
@@ -265,7 +266,7 @@ int FandB::insertInOrder(list<int> & lst, int elem)
 }
 
 // check for matching partial solutions, jlev level of indLastNode
-int FandB::checkMatch(ofstream& flog,int jlev, int indLastNode, bool isForward, vector<int> indCost)
+int FandB::checkMatch(ofstream& flog, int iter, int jlev, int indLastNode, bool isForward, vector<int> indCost)
 {  int i,z=-1,res=0;
    list<int> * lstCompletions;
    std::list<int>::const_iterator iterator;
@@ -279,8 +280,7 @@ int FandB::checkMatch(ofstream& flog,int jlev, int indLastNode, bool isForward, 
 
    // Iterate and print values of the completion list
    for (iterator = (*lstCompletions).begin(); iterator != (*lstCompletions).end(); ++iterator) 
-   {  if(isVerbose) cout << (isForward ? "forw" : "backw") << " level" <<  jlev << " node_compl " << *iterator << endl;
-
+   {  
       if(stack[*iterator].server < 0) 
          continue;
       for (i=0; i<m; i++)
@@ -289,8 +289,8 @@ int FandB::checkMatch(ofstream& flog,int jlev, int indLastNode, bool isForward, 
       z = stack[indLastNode].z + stack[*iterator].z;
       if(isVerbose) 
       {  cout << "MATCHING FEASIBLE! cost " << z << endl;
-         flog << (isForward ? "forw" : "backw") << " level" <<  jlev << " node_compl " << *iterator;
-         flog << "cost " << z << " zub " << zub ;
+         flog << (isForward ? "forw" : "backw") << " iter " << iter << " level " <<  jlev << " node_compl " << *iterator;
+         flog << " cost " << z << " zub " << zub << " ";
       }
 
       //if(z < zub)
@@ -339,7 +339,7 @@ int FandB::readSolutionF(ofstream& flog, int currNode, vector<int> indCost)
       if(stack[currNode].z < zub)
       {  zub = z;
          cout << "New zub: " << zub << endl;
-         flog << "New zub: " << zub << endl; 
+         flog << "FNew zub: " << zub << endl; 
          for(j=0;j<n;j++)
             solbest[j] = sol[j]; 
       }
@@ -365,7 +365,7 @@ int FandB::readSolutionB(ofstream& flog, int currNode, vector<int> indCost)
          jlev++;
       }
       cout << "New zub: " << zub << endl;
-      flog << "New zub: " << zub; fprintIntArray(flog,solbest,n);
+      flog << "BNew zub: " << zub << " "; fprintIntArray(flog,solbest,n);
    }
 
    return res;
@@ -385,7 +385,7 @@ int FandB::readSolutionFB(ofstream& flog, int jLevF, int fNode, int bNode, vecto
    {  j = indCost[jlev];
       sol[j] = stack[solNode].server;
       z += GAP->c[sol[j]][j];
-      if(isVerbose) cout << "node " << solNode << " lev " << jlev << " j " << j << " i " << sol[j] << " c " << GAP->c[sol[j]][j] << " z " << stack[solNode].z << " ztot " << z << endl;
+      //if(isVerbose) cout << "node " << solNode << " lev " << jlev << " j " << j << " i " << sol[j] << " c " << GAP->c[sol[j]][j] << " z " << stack[solNode].z << " ztot " << z << endl;
       solNode = stack[solNode].dad;
       jlev--;
    }
@@ -397,19 +397,17 @@ int FandB::readSolutionFB(ofstream& flog, int jLevF, int fNode, int bNode, vecto
    {  j = indCost[jlev];
       sol[j] = stack[solNode].server;
       z += GAP->c[sol[j]][j];
-      if(isVerbose) cout << "node " << solNode << " lev " << jlev << " j " << j << " i " << sol[j] << " c " << GAP->c[sol[j]][j] << " z " << stack[solNode].z << " ztot " << z << endl;
+      //if(isVerbose) cout << "node " << solNode << " lev " << jlev << " j " << j << " i " << sol[j] << " c " << GAP->c[sol[j]][j] << " z " << stack[solNode].z << " ztot " << z << endl;
       solNode = stack[solNode].dad;
       jlev++;
    }
-   if(abs(z-zub) > GAP->EPS)
-      cout << "[readSolutionFB]: ---------------------------- Error, solution cost mismatch" << endl;
 
-   flog << "zsol " << zsol << " "; fprintIntArray(flog,sol,n);
+   flog << "zsol " << zsol << " "; fprintIntArray(flog, sol, n);
 
-   if(z < zub)
-   {  cout << "New zub: " << zub << endl;
-      flog << "New zub: " << zub; fprintIntArray(flog,solbest,n);
-      for(j=0;j<n;j++) solbest[j] = sol[j];
+   if (z < zub)
+   {  zub = z;
+      cout << "New zub: " << zub << endl;
+      for (j = 0; j < n; j++) solbest[j] = sol[j];
    }
 
    return z;

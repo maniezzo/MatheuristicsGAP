@@ -41,16 +41,16 @@ class FandB
       int indLastNode;  // aka stack.size(). just it
       int numFathomed;  // num fahtomed nodes
 
-      int sweepForward(ofstream&, int** c, int delta, int maxNodes, int openNodes, vector<int> indCost);
-      int sweepBackward(ofstream&, int** c, int delta, int maxNodes, int openNodes, vector<int> indCost);
-      int expandNode(ofstream&, int** c, int j, int jlev, int currNode, vector<int> indCost, bool isForward);  // generates feasible offspring of a node
+      int sweepForward(ofstream&, int iter, int** c, int delta, int maxNodes, int openNodes, vector<int> indCost);
+      int sweepBackward(ofstream&, int iter,  int** c, int delta, int maxNodes, int openNodes, vector<int> indCost);
+      int expandNode(ofstream&, int iter, int** c, int j, int jlev, int currNode, vector<int> indCost, bool isForward);  // generates feasible offspring of a node
       int insertInOrder(list<int> & lst, int ind);              // inserts a stack index in a list, ordered on a key
       int readSolutionF(ofstream&, int currNode, vector<int> indCost);     // reads the solutions from a last node of the forward tree
       int readSolutionB(ofstream&, int currNode, vector<int> indCost);     // reads the solutions from a last node of the backward tree
       int readSolutionFB(ofstream&, int jLevF, int fNode, int bNode, vector<int> indCost); // reads the solution as a mix of forw and a backw partials
       int findNextNodeF(int jlev, int newNodes, int openNodes); // finds the next node to expand forward
       int findNextNodeB(int jlev, int newNodes, int openNodes); // finds the next node to expand backward
-      int checkMatch(ofstream&, int jlev, int indLastNode, bool isForward, vector<int> indCost);// checks for matching partial solutions
+      int checkMatch(ofstream&, int iter, int jlev, int indLastNode, bool isForward, vector<int> indCost);// checks for matching partial solutions
 };
 
 #endif // FANDB_H

@@ -51,8 +51,8 @@
    "beam"     :{ "delta"     : 5,
                  "maxnodes"  : 200000
                },
-   "FandB"    :{ "delta"     : 5,
-                 "maxnodes"  : 200000
+   "FandB"    :{ "delta"     : 2,
+                 "maxnodes"  : 5000
                },
    "corridor" :{ "delta"     : 4,
                  "maxiter"   : 5
@@ -67,6 +67,6 @@
                },
    "datafile"  : "c:\\AAAToBackup\\ricerche\\GAP\\istanze\\instances\\fileList.txt",
    "outdir"    : "outdir",
-   "isverbose" : 0,
+   "isverbose" : 1,
    "aversionf" : 2
 }
