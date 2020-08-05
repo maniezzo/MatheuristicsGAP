@@ -233,13 +233,13 @@ int FandB::expandNode(ofstream& flog, int iter, int** c, int j, int jlev, int cu
          {  insertInOrder(fList[jlev+1], indLastNode);   // inserts the index of the node in the level list
             checkMatch(flog, iter, jlev+1, indLastNode, isForward, indCost);       // check for feasible completion
             //if(isVerbose)   
-            //   cout << "lev." << jlev+1 << " node " << indLastNode << " cost " << newNode.z << endl;
+            //   flog << "lev." << jlev+1 << " fromnode " << currNode << " tonode " << indLastNode << " cost " << newNode.z << endl;
          }
          else
          {  insertInOrder(bList[jlev-1], indLastNode);   // inserts the index of the node in the level list
             checkMatch(flog, iter, jlev-1, indLastNode, isForward, indCost);       // check for feasible completion
             //if(isVerbose)
-            //   cout << "lev." << jlev-1 << " node " << indLastNode << " cost " << newNode.z << endl;
+            //   flog << "lev." << jlev-1 << " fromnode " << currNode << " tonode " << indLastNode << " cost " << newNode.z << endl;
          }
          numNewNodes++;
       }
