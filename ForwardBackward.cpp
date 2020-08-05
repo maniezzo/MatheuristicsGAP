@@ -17,7 +17,7 @@ FandB::~FandB()
 }
 
 int FandB::forwardBackward(int** c, int delta, int maxNodes, bool fVerbose)
-{  int i,j,z,iter,maxIter = 100;
+{  int i,j,z,iter,maxIter = 100,zub0,nNoImproved;
    int currNode,openNodesF,openNodesB;
 
    vector<int> regrets(n),capleft(m);
@@ -63,8 +63,8 @@ int FandB::forwardBackward(int** c, int delta, int maxNodes, bool fVerbose)
    stack.push_back(rootF);
    stack.push_back(rootB);
    indLastNode = 1;
-   zub = INT_MAX;
-   openNodesF = openNodesB = 0;
+   zub = zub0 = INT_MAX;
+   openNodesF = openNodesB = nNoImproved = 0;
 
    // client ordering is dictated by regrets!
    z = 0;
@@ -74,19 +74,23 @@ int FandB::forwardBackward(int** c, int delta, int maxNodes, bool fVerbose)
    openNodesF += expandNode(flog, iter, c, indCost[0], -1, currNode, indCost, true);// stack initialization, forward
    fTree[0].push_back(currNode);                // append to list of expanded nodes
 
-   z = 0;
    currNode   = 1;
    openNodesB += expandNode(flog, iter, c, indCost[n-1], n, currNode, indCost, false);// stack initialization, backward
    bTree[n-1].push_back(currNode);              // append to list of expanded nodes
 
-   while ((openNodesF+openNodesB) > 0 && indLastNode < maxNodes && iter < maxIter)
-   {
+   while ((openNodesF+openNodesB) > 0 && 
+           indLastNode < maxNodes && 
+           iter < maxIter && 
+           nNoImproved < 2 )
+   {  zub0 = zub;
+      nNoImproved++; // iterations without zub improvement
       cout << "Iter " << iter << " Num nodes: " << indLastNode << " open nodes forw." << openNodesF << " open nodes backw." << openNodesB << endl;
       cout << " ---------- FORWARD -------------> " << endl;
       openNodesF = sweepForward(flog, iter, c, delta,  maxNodes, openNodesF, indCost);
       cout << " <---------- BACKWARD ------------ " << endl;
       openNodesB = sweepBackward(flog, iter, c, delta,  maxNodes, openNodesB, indCost);
       iter++;
+      if(zub<zub0) nNoImproved = 0; // zub improved in current iteration
    }
 
    if(abs(GAP->checkSol(solbest)-zub) > GAP->EPS)
@@ -137,7 +141,7 @@ int FandB::sweepForward(ofstream& flog, int iter, int** c, int delta, int maxNod
                if(stack[currNode].z < fTopCost[jlev]) cout << "[sweepForward] inner cost insertion" << endl;
       }
       if(isVerbose || n>0)
-      {  cout << "[sweepForward] iter " << iter << " Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes "<< indLastNode << " top cost " << fTopCost[jlev] << endl;
+      {  cout << "[sweepForward] iter " << iter << " Level " << jlev << " expanded " << k << " new nodes " << newNodes << " open nodes " << openNodes << " tot nodes "<< indLastNode << " top cost " << fTopCost[jlev] << " zub " << zub << endl;
          flog << "[sweepForward] iter " << iter << " Level " << jlev << " expanded " << k << " new " << newNodes << " open " << openNodes << " tot "<< indLastNode << " topcost " << fTopCost[jlev] << " fathomed " << numFathomed <<  endl;
       }
    }
