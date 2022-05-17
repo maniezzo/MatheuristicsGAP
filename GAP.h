@@ -11,6 +11,7 @@
 #include <cstdlib>    /* srand, rand */
 #include <time.h>     /* time */
 #include <assert.h>   /* assert */
+#include <algorithm>  /* std::sort */
 
 using namespace std;
 
