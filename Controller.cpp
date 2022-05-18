@@ -70,8 +70,9 @@ void Controller::computeBounds()
                                        GAP->conf->lagrAss->innerIter, 
                                        GAP->conf->lagrAss->maxiter);
    cout << "Lagrangian Decomposition bound " << bound << endl;
-   bound = LB->benders();
-   cout << "Benders Decomposition bound " << bound << endl;
+   cout << "Benders bound to be completed" << endl;
+   //bound = LB->benders();
+   //cout << "Benders Decomposition bound " << bound << endl;
 
    if(LB != NULL) delete LB;
    LB = NULL;

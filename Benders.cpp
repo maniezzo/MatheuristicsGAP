@@ -60,6 +60,9 @@ int Benders::bendersHeu(int** c, int maxiter, bool fVerbose)
       zMaster = 0;
       AllocateMaster(CPXmaster,nServKept, isVerbose);
 
+      cout << "Benders heuristic to be completed" << endl;
+      goto lend;
+
       while ((zSubpr-zMaster) > 0.01)
       {
          AddBendersCut(CPXmaster,wbar,nServKept);

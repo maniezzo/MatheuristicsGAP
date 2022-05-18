@@ -650,6 +650,7 @@ int MIPCplex::solveMIP(bool fMIPint, bool isVerbose)
          goto lend;
       }
 
+      status = CPXwriteprob(env, lp, "GAP.lp", NULL);
       status = CPXmipopt(env, lp);
       if ( status ) 
       {  cerr << "Failed to optimize MIP. zbest = " << lastSol.lastincumbent << endl;
