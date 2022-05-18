@@ -23,12 +23,12 @@
    "GRASP":    { "maxiter" : 5000,
                  "candNum" : 2
                },
-   "VNS":      { "maxiter" : 5000,
+   "VNS":      { "maxiter" : 500,
                  "fGoMath" : 1 
                },
-   "ACO":      { "maxiter" : 5,
-                 "numpop" : 10,
-                 "alpha"  : 0.4
+   "ACO":      { "maxiter" : 20,
+                 "numpop"  : 15,
+                 "alpha"   : 0.3
                },
    "SS":       { "maxiter" : 5,
                  "numpop" : 10,

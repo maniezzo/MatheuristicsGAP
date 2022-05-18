@@ -2,7 +2,7 @@
 \Problem name: GAPinst
 
 Maximize
- obj: w'0 + w'1 + w'2 + w'3 + w'4 + w'5 + w'6 + w'7 + 90 w''8 + 70 w''9
+ obj1: w'0 + w'1 + w'2 + w'3 + w'4 + w'5 + w'6 + w'7 + 90 w''8 + 70 w''9
 Subject To
  c0:  w'0 + 38 w''8 <= 22
  c1:  w'1 + 37 w''8 <= 24

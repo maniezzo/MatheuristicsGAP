@@ -2,7 +2,7 @@
 \Problem name: GAPinst
 
 Minimize
- obj: z
+ obj1: z
 Subject To
  z0: z - 10 x1 - 11 x2 - 12 x3 - 13 x4 - 14 x5 - 15 x6 - 16 x7 - 17 x8 >= 0
  c1: 48 x1 + 47 x2 + 46 x3 + 45 x4 + 44 x5 + 43 x6 + 42 x7 + 41 x8 <= 160

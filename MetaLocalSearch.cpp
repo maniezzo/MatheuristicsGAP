@@ -152,7 +152,7 @@ double MetaLocalSearch::GRASPcontruct(int candNum, bool isMatheuristic)
       j = indRegr[jj];                // client order by regrets
       for(i=0;i<m;i++)
       {  indReq[i] = i;
-         if(isMatheuristic)
+         if(isMatheuristic) 
          {  for(ii=0;ii<m;ii++)
                if(ii != i)
                   iterReq[ii][j] = INT_MAX;
