@@ -42,13 +42,13 @@ int ConstructHeu::simpleConstruct()
 
    zub = 0;
    for(jj=0;jj<n;jj++)
-   {  j = indCost[jj];  // client order by regrets
+   {  j = indCost[jj];  // client order by decreasing regrets, higher first
       for(i=0;i<m;i++)
       {  cost[i]= GAP->aversion(i,j);
          indReq[i] = i;
       }
 
-      std::sort(indReq.begin(), indReq.end(), compCost);
+      std::sort(indReq.begin(), indReq.end(), compCost); // prefer low cost
 
       ii=0;
       while(ii<m)

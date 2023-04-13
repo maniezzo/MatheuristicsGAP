@@ -24,9 +24,8 @@ int Ejection::ejectionChain(int** c, int maxiter)
    sol = generateOneSol(&z);
 
    cout << "Here would be feasibility pump. Commented out" << endl;
-   if(z<0)
-   {
-      double zlp = DBL_MAX;
+   if(z<0) // keeping FP in
+   {  double zlp = DBL_MAX;
       sol = feasibilityPump(1000,x,zlp);
    }
 
@@ -156,9 +155,9 @@ int* Ejection::feasibilityPump(int maxIter, double* x, double zlp)
             }
          status = CPXchgobj(CPX->env, CPX->lp, n*m, indices, ofvalues);
          int statusMIP = CPX->solveMIP(false, false);
+         double cst = 0;
          if (statusMIP == 0)
-         {
-            double cst = CPX->objval;     // useless, but nice to know
+         {  cst = CPX->objval;     // could be useless, but nice to know
             for (i = 0; i < m; ++i)
                for (j = 0; j < n; ++j)
                   x[i*n + j] = CPX->x[i*n + j];
@@ -173,7 +172,7 @@ int* Ejection::feasibilityPump(int maxIter, double* x, double zlp)
                if(round(x[i*n + j]) != xRound[i*n + j])
                   isDifferent = true;
             }
-         cout << "FP iter: " << iter << " delta: " << delta << endl;
+         cout << "FP iter: " << iter << " lp " << cst <<  " delta: " << delta << endl;
 
          if(delta>0)
          {  if(isDifferent && ((iter+1)%n > 0))     // heuristic perturbations added every tot iterations
