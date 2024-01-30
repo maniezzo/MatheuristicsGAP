@@ -141,6 +141,7 @@ int Controller::run_simAnn()
 {
    SA = new SimAnnealing(GAP, GAP->zub);
 
+   cout << "No MIP postprocessing, here multiplier adjustment if fGoMath=1" << endl;
    SA->simAnnealing( GAP->c,
       GAP->conf->SA->maxT,
       GAP->conf->SA->k,
