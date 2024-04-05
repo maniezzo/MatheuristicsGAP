@@ -28,7 +28,7 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
    int numRows, numCols, numNZrow, statusMIP;
    numRows = n + m;   // num of constraints
    numCols = n * m;   // num of variables
-   numNZrow = n * m;   // max num of nonzero values in a row
+   numNZrow = n * m;  // maximum num of nonzero values in a row
    MIPCplex* CPX = new MIPCplex(numRows, numCols, numNZrow);
    CPX->GAP = GAP;
    CPX->allocateMIP(false); // verbose output
@@ -36,8 +36,7 @@ int ACO::antColony(int** c, int maxiter, int numpop, double alpha)
 
    statusMIP = CPX->solveMIP(false, false);   // LP of whole instance
    if (statusMIP == 0)
-   {
-      lb = CPX->objval;
+   {  lb = CPX->objval;
       cout << "Linear bound: " << lb << endl;
       if (n * m < 101)                       // print LP if instance is small
       {
